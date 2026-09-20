@@ -6,7 +6,7 @@
 
 
 
-class PairwiseAlgorithm
+class Pairwise
 
 {
 public:
@@ -16,12 +16,12 @@ public:
     RK4 RK4Integrator;
 
     ParticlesState particles;
-    PairwiseAlgorithm(int numberOfParticles, int integratorNum, int particleConfigNumber, double dt);
+    Pairwise(int particlesCount, int integratorNumber, int particleConfigNumber, double dt);
     void initialiseParticles();
     void Update(double dt);
 
-    int numberOfParticles;
-    int integratorNum;
+    int particlesCount;
+    int integratorNumber;
     int particleConfigNumber;
 
 

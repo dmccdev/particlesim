@@ -49,7 +49,7 @@ void QuadTree::buildTree(std::vector<Particle> &particles, int centerScreenX, in
 
 void QuadTree::subdivide(int nodeIndex)
 {
-    int nextAvailableIndex = nodes.size();
+    int nextAvailableIndex = nodes.size(); //The final index
 
     nodes.resize(nodes.size() + 4);
     nodes[nodeIndex].childFirstIndex = nextAvailableIndex;

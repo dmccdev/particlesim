@@ -16,14 +16,15 @@ public:
     Vec accelerationY;
     Vec mass;
     Vec speedSquared;
-    int numberOfParticles;
-
-    ParticlesState(int numberOfParticles);
-    
+    int particlesCount;
+    double G = 1.0;
+    double pi = 3.14159265358979323846;
+    ParticlesState(int particlesCount);
     void PrintData();
-    void InitiataliseParticlesRadial();
+    void Galaxy();
     void BinaryGalaxy();
-    void triangle();
-    Color GetColorWhiteToRed(double speed, double maxSpeed);
+    void Triangle();
     void Draw();
+private:
+    Color GetColorWhiteToRed(double speed, double maxSpeed);
 };

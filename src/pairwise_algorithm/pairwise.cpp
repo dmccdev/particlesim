@@ -5,65 +5,59 @@
 #include "integrator/RK4.hpp"
 
 
-PairwiseAlgorithm::PairwiseAlgorithm(int numberOfParticles, int integratorNum, int particleConfigNumber, double dt):
-numberOfParticles(numberOfParticles),
-integratorNum(integratorNum),
+Pairwise::Pairwise(int particlesCount, int integratorNumber, int particleConfigNumber, double dt):
+particlesCount(particlesCount),
+integratorNumber(integratorNumber),
 particleConfigNumber(particleConfigNumber),
-particles(numberOfParticles),
-RK4Integrator(numberOfParticles)
+particles(particlesCount),
+RK4Integrator(particlesCount)
 {
     initialiseParticles();
 }
 
-void PairwiseAlgorithm::initialiseParticles()
+void Pairwise::initialiseParticles()
 {
-    //Initialising Configuration
-    if (particleConfigNumber == 1) //Galaxy Configuration
+    switch(particleConfigNumber) //Initalise Particle Configuration
     {
-        particles.InitiataliseParticlesRadial();
-    }
-    else if (particleConfigNumber == 2) //Binary Galaxy
-    {
+    case 1:
+        particles.Galaxy();
+        break;
+    case 2:
         particles.BinaryGalaxy();
-    }
-    else if(particleConfigNumber == 3) //Triangle
-    {
-        particles.triangle();
-    }
-
-    //Initialising Integrator
-    if (integratorNum == 1) // Euler
-    {
-        return;
-    }
-    else if(integratorNum == 2) // Verlet
-    {
-        VerletIntegrator.Initiate(particles);
-    }
-    else if(integratorNum == 3) //RK4
-    {
-        return;
+        break;
+    case 3:
+        particles.Triangle();
+        break;
     }
 
-
+    switch(integratorNumber) //Initialise Integrator
+    {
+        case 1:
+            break;
+        case 2:
+            VerletIntegrator.Initiate(particles);
+            break;
+        case 3:
+            break;
+    }
 }
 
-void PairwiseAlgorithm::Update(double dt)
+void Pairwise::Update(double dt)
 {
-    if(integratorNum == 1) //Euler
+    switch(integratorNumber)
     {
+    case 1: //Euler
         EulerIntegrator.Update(particles, dt);
         particles.Draw();
-    }
-    else if(integratorNum == 2) //Verlet
-    {
+        break;
+    case 2: //Verlet
         VerletIntegrator.Update(particles, dt);
         particles.Draw();
-    }   
-    else if(integratorNum == 3) //RK4
-    {
+        break;
+    case 3: //RK4
         RK4Integrator.Update(particles, dt);
         particles.Draw();
+        break;
     }
 }
 

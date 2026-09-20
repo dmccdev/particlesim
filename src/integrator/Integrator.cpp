@@ -1,12 +1,7 @@
 #include "Integrator.hpp"
 
 
-void Integrator::CalculateAccelerations(
-    Vec &positionX,
-    Vec &positionY,
-    Vec &accelerationX,
-    Vec &accelerationY,
-    Vec &mass)
+void Integrator::CalculateAccelerations(Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass)
 
 {
     int numberOfParticles = positionX.size();

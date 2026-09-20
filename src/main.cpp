@@ -7,7 +7,7 @@ int main()
 {
     InitWindow(900, 900, "particlesim2");
     SetTargetFPS(60);
-    PairwiseAlgorithm game(4000, 2, 3, 0.01);
+    Pairwise game(2000, 2, 2, 0.01);
     while(WindowShouldClose() == false)
     {
         BeginDrawing();

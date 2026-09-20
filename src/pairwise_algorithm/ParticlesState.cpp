@@ -6,12 +6,12 @@
 
 
 
-ParticlesState::ParticlesState(int numberOfParticles) :
-X(numberOfParticles), Y(numberOfParticles),
-velocityX(numberOfParticles), velocityY(numberOfParticles),
-accelerationX(numberOfParticles), accelerationY(numberOfParticles),
-mass(numberOfParticles), speedSquared(numberOfParticles),
-numberOfParticles(numberOfParticles)
+ParticlesState::ParticlesState(int particlesCount) :
+X(particlesCount), Y(particlesCount),
+velocityX(particlesCount), velocityY(particlesCount),
+accelerationX(particlesCount), accelerationY(particlesCount),
+mass(particlesCount), speedSquared(particlesCount),
+particlesCount(particlesCount)
 
 {}
 
@@ -32,11 +32,9 @@ void ParticlesState::PrintData()// Debug
 
 }
 
-void ParticlesState::InitiataliseParticlesRadial()
+void ParticlesState::Galaxy()
 {
-    int numberOfParticles = X.size();
-    double pi = 3.14159265358979323846;
-    double G = 1.0;
+
     std::random_device rd;
     std::mt19937 generator64(rd());
 
@@ -44,13 +42,13 @@ void ParticlesState::InitiataliseParticlesRadial()
     std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
 
     //Initialise Center Mass
-    X[numberOfParticles-1] = 450.0;
-    Y[numberOfParticles-1] = 450.0;
-    mass[numberOfParticles-1] = 100000.0;
-    velocityX[numberOfParticles-1] = 0.0;
-    velocityY[numberOfParticles-1] = 0.0;
+    X[particlesCount-1] = 450.0;
+    Y[particlesCount-1] = 450.0;
+    mass[particlesCount-1] = 100000.0;
+    velocityX[particlesCount-1] = 0.0;
+    velocityY[particlesCount-1] = 0.0;
 
-    for(int i = 0; i < numberOfParticles-1; i++)
+    for(int i = 0; i < particlesCount-1; i++)
     {
         //Position
         double radius = distributionRadius(generator64);
@@ -60,11 +58,11 @@ void ParticlesState::InitiataliseParticlesRadial()
         Y[i] = 450 + radius * std::sin(theta);
 
         //Velocity
-        double displacementX = X[i] - X[numberOfParticles-1];
-        double displacementY = Y[i] - Y[numberOfParticles-1];
+        double displacementX = X[i] - X[particlesCount-1];
+        double displacementY = Y[i] - Y[particlesCount-1];
 
         double distance = sqrt(displacementX*displacementX + displacementY*displacementY);
-        double speed = sqrt(G * mass[numberOfParticles-1] / distance);
+        double speed = sqrt(G * mass[particlesCount-1] / distance);
 
         double tangentialVelocityX = -displacementY/distance * speed;
         double tangentialVelocityY = displacementX/distance * speed;
@@ -79,9 +77,7 @@ void ParticlesState::InitiataliseParticlesRadial()
 
 void ParticlesState::BinaryGalaxy()
 {
-    int numberOfParticles = X.size();
-    double pi = 3.14159265358979323846;
-    double G = 1.0;
+
     std::random_device rd;
     std::mt19937 generator64(rd());
 
@@ -113,7 +109,7 @@ void ParticlesState::BinaryGalaxy()
     velocityY[0] = speed; //Tangential velocity to center of mass in opposite directions
     velocityY[1] = -speed;
 
-    for(int i = 2; i < numberOfParticles; i++)
+    for(int i = 2; i < particlesCount; i++)
     {
         //Position
         double radius = distributionRadius(generator64);
@@ -140,11 +136,9 @@ void ParticlesState::BinaryGalaxy()
     }
 }
 
-void ParticlesState::triangle()
+void ParticlesState::Triangle()
 {
-    int numberOfParticles = X.size();
-    double pi = 3.14159265358979323846;
-    double G = 1.0;
+
     std::random_device rd;
     std::mt19937 generator64(rd());
 
@@ -157,7 +151,7 @@ void ParticlesState::triangle()
     Y[0] = 450;
     mass[0] = 1000000.0;
 
-    for(int i = 1; i < numberOfParticles; i++)
+    for(int i = 1; i < particlesCount; i++)
     {
         //Position
         double radius = distributionRadius(generator64);
@@ -206,21 +200,18 @@ void ParticlesState::Draw()
     speedSquared = velocityX.array().square() + velocityY.array().square();
 
     double maxSpeed = speedSquared.maxCoeff(); 
-    int numberOfParticles = X.size();
-    for(int i = 0; i < numberOfParticles; i++)
+    for(int i = 0; i < particlesCount; i++)
     { 
         Rectangle dest = {(float) X[i] - radius, (float)Y[i] - radius, (float)size, (float)size};
-
         Color speedColour = GetColorWhiteToRed(speedSquared[i], maxSpeed);
         DrawTexturePro(circleTex.texture, source, dest, origin, 0.0f, speedColour);
-
     }
 }
 
 
 Color ParticlesState::GetColorWhiteToRed(double speed, double maxSpeed) 
 {
-    float t = (float) std::clamp(speed*2, 0.0, maxSpeed) / maxSpeed;
+    float t = (float) std::clamp(speed, 0.0, maxSpeed) / maxSpeed;
     
     return ColorLerp(BLUE, RED, t);
 }
