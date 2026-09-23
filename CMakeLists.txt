@@ -11,8 +11,10 @@ add_subdirectory(C:/raylib/raylib raylib)
 
 # Create your executable target
 
-add_executable(particlesim 
+add_executable(particlesim
     src/main.cpp
+    src/ui.hpp
+    src/ui.cpp
     src/pairwise_algorithm/pairwise.hpp
     src/pairwise_algorithm/pairwise.cpp
     src/pairwise_algorithm/ParticlesState.hpp
@@ -24,8 +26,9 @@ add_executable(particlesim
     src/integrator/RK4.cpp
     src/integrator/RK4.hpp
     src/integrator/Euler.cpp
-    src/integrator/Euler.hpp)
-    
+    src/integrator/Euler.hpp
+)
+
     # Tell CMake to search inside the 'third_party' folder of this project
 target_include_directories(particlesim PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
@@ -40,8 +43,8 @@ find_package(OpenMP REQUIRED)
 
 # Link OpenMP to your specific executable target
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(particlesim PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-find_package(OpenMP REQUIRED)
+
 

@@ -20,6 +20,7 @@ public:
     double G = 1.0;
     double pi = 3.14159265358979323846;
     ParticlesState(int particlesCount);
+    ~ParticlesState();
     void PrintData();
     void Galaxy();
     void BinaryGalaxy();
@@ -27,4 +28,5 @@ public:
     void Draw();
 private:
     Color GetColorWhiteToRed(double speed, double maxSpeed);
+    Texture2D particleTexture;
 };

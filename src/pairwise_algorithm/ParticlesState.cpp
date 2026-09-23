@@ -3,6 +3,9 @@
 #include <raylib.h>
 #include <iostream>
 #include <algorithm>
+#include <vector>
+#include <rlgl.h>
+#include <raymath.h>
 
 
 
@@ -13,7 +16,19 @@ accelerationX(particlesCount), accelerationY(particlesCount),
 mass(particlesCount), speedSquared(particlesCount),
 particlesCount(particlesCount)
 
-{}
+{
+    Image img = GenImageColor(16, 16, BLANK);
+    ImageDrawCircle(&img, 8, 8, 8, WHITE);
+    particleTexture = LoadTextureFromImage(img);
+    UnloadImage(img);
+}
+
+ParticlesState::~ParticlesState()
+{
+    if (particleTexture.id != 0) {
+        UnloadTexture(particleTexture);
+    }
+}
 
 void ParticlesState::PrintData()// Debug
 
@@ -38,39 +53,37 @@ void ParticlesState::Galaxy()
     std::random_device rd;
     std::mt19937 generator64(rd());
 
-    std::uniform_real_distribution<double> distributionRadius(150, 300);
+    std::uniform_real_distribution<double> distributionRadius(150, 450);
     std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
 
     //Initialise Center Mass
-    X[particlesCount-1] = 450.0;
-    Y[particlesCount-1] = 450.0;
-    mass[particlesCount-1] = 100000.0;
-    velocityX[particlesCount-1] = 0.0;
-    velocityY[particlesCount-1] = 0.0;
+    X[0] = 450.0;
+    Y[0] = 450.0;
+    mass[0] = 100000.0;
+    velocityX[0] = 0.0;
+    velocityY[0] = 0.0;
 
-    for(int i = 0; i < particlesCount-1; i++)
+    for(int i = 1; i < particlesCount; i++)
     {
         //Position
         double radius = distributionRadius(generator64);
         double theta = distributionTheta(generator64);
 
-        X[i] = 450 + radius * std::cos(theta);
-        Y[i] = 450 + radius * std::sin(theta);
+        X[i] = X[0] + radius * std::cos(theta);
+        Y[i] = Y[0] + radius * std::sin(theta);
 
         //Velocity
-        double displacementX = X[i] - X[particlesCount-1];
-        double displacementY = Y[i] - Y[particlesCount-1];
+        double displacementX = X[i] - X[0];
+        double displacementY = Y[i] - Y[0];
 
         double distance = sqrt(displacementX*displacementX + displacementY*displacementY);
-        double speed = sqrt(G * mass[particlesCount-1] / distance);
+        double speed = sqrt(G * mass[0] / distance);
 
         double tangentialVelocityX = -displacementY/distance * speed;
         double tangentialVelocityY = displacementX/distance * speed;
 
         velocityX[i] = tangentialVelocityX;
         velocityY[i] = tangentialVelocityY;
-
-        //Mass
         mass[i] = 1.0;
     }
 }
@@ -85,7 +98,7 @@ void ParticlesState::BinaryGalaxy()
     std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
 
     //Initialise Central Masses
-    X[0] = 450.0;
+    X[0] = 480.0;
     Y[0] = 450.0;
     mass[0] = 10000000.0;
 
@@ -115,8 +128,8 @@ void ParticlesState::BinaryGalaxy()
         double radius = distributionRadius(generator64);
         double theta = distributionTheta(generator64);
 
-        X[i] = 450 + radius * std::cos(theta);
-        Y[i] = 450 + radius * std::sin(theta);
+        X[i] = centerMassX + radius * std::cos(theta);
+        Y[i] = centerMassY + radius * std::sin(theta);
 
         //Velocity
         double displacementX = X[i] - centerMassX;
@@ -180,34 +193,38 @@ void ParticlesState::Triangle()
 
 void ParticlesState::Draw()
 {
-
-    int radius = 3;
-    int size = radius * 2;
-
-
-    RenderTexture2D circleTex = LoadRenderTexture(32, 32);
-    BeginTextureMode(circleTex);
-        ClearBackground(BLANK);
-        DrawCircle(16, 16, 16, WHITE); 
-    EndTextureMode();
-
-
-    Rectangle source = {0, 0, (float)size, (float)-size}; 
-    Vector2 origin = {0, 0};
-
-
-    speedSquared.setZero();
     speedSquared = velocityX.array().square() + velocityY.array().square();
+    double maxSpeedSquared = speedSquared.maxCoeff();
+    if (particlesCount <= 0) return;
 
-    double maxSpeed = speedSquared.maxCoeff(); 
-    for(int i = 0; i < particlesCount; i++)
-    { 
-        Rectangle dest = {(float) X[i] - radius, (float)Y[i] - radius, (float)size, (float)size};
-        Color speedColour = GetColorWhiteToRed(speedSquared[i], maxSpeed);
-        DrawTexturePro(circleTex.texture, source, dest, origin, 0.0f, speedColour);
+    double maxSpeed = speedSquared.maxCoeff();
+    float pointSize = 2.0f; // Half-size = 1.0f
+
+    BeginBlendMode(BLEND_ADDITIVE);
+    rlBegin(RL_QUADS);
+    for (int i = 0; i < particlesCount; i++)
+    {
+        if (i > 0 && (i % 2000 == 0)) 
+        {
+            rlEnd();
+            rlBegin(RL_QUADS);
+        }
+        Color c = GetColorWhiteToRed(speedSquared[i], maxSpeedSquared);
+
+        rlColor4ub(c.r, c.g, c.b, c.a);
+
+        float px = static_cast<float>(X[i]);
+        float py = static_cast<float>(Y[i]);
+
+        // Draw a small 2x2 square quad for each particle
+        rlVertex2f(px - 1.0f, py - 1.0f);
+        rlVertex2f(px - 1.0f, py + 1.0f);
+        rlVertex2f(px + 1.0f, py + 1.0f);
+        rlVertex2f(px + 1.0f, py - 1.0f);
     }
+    rlEnd();
+    EndBlendMode();
 }
-
 
 Color ParticlesState::GetColorWhiteToRed(double speed, double maxSpeed) 
 {

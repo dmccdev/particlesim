@@ -1,4 +1,5 @@
 #include "Integrator.hpp"
+#include <omp.h>
 
 
 void Integrator::CalculateAccelerations(Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass)
@@ -7,6 +8,8 @@ void Integrator::CalculateAccelerations(Vec &positionX, Vec &positionY, Vec &acc
     int numberOfParticles = positionX.size();
     accelerationX.setZero();
     accelerationY.setZero();
+    
+    #pragma omp parallel for
     for(int i = 0;  i < numberOfParticles; i++)
     {
         for(int j = i + 1; j < numberOfParticles; j++)
