@@ -18,7 +18,7 @@ int main()
 
             ClearBackground(BLACK);
             game.Update(0.1);
-            // userinterface.Draw();
+            userinterface.Draw();
             DrawFPS(820, 0);
 
 

@@ -13,8 +13,11 @@ add_subdirectory(C:/raylib/raylib raylib)
 
 add_executable(particlesim
     src/main.cpp
+    src/calibri.ttf
     src/ui.hpp
     src/ui.cpp
+    src/button.cpp
+    src/button.hpp
     src/pairwise_algorithm/pairwise.hpp
     src/pairwise_algorithm/pairwise.cpp
     src/pairwise_algorithm/ParticlesState.hpp
@@ -33,6 +36,10 @@ add_executable(particlesim
 target_include_directories(particlesim PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+# Copy the font file to the build directory automatically
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/calibri.ttf"
+     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/src")
 
 
 # Link Raylib to your program
