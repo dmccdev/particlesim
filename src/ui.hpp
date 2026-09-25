@@ -1,12 +1,22 @@
 #pragma once
 #include <raylib.h>
+#include <button.hpp>
+#include <vector>
 
 class UserInterface
 {
 public:
-    UserInterface();
+    Button BarnesHutButton;
+    Button PairwiseButton;
+    Button EulerButton;
+    Button VerletButton;
+    Button RK4Button;
+
+    UserInterface(Font font);
     void Draw();
-    bool ButtonPressed(Vector2 mousePosition, Rectangle &button);
+    void UpdateButtons(Vector2 mousePosition);
+    void ButtonPressed(Vector2 mousePosition, Button &button);
+    void SetActiveIntegrator(Button &button);
 
 private:
 };

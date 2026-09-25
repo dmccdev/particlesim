@@ -1,12 +1,13 @@
 #include "button.hpp"
 #include <iostream>
 
-Button::Button(float x, float y, float width, float height, std::string text, Font font, Color buttonColour)
+Button::Button(float x, float y, float width, float height, std::string text, Font font, Color buttonColour, bool integrator)
 {
     ButtonBounds = Rectangle{x, y, width, height};
     this->text = text;
     this->font = font;
     this->buttonColour = buttonColour;
+    this->integrator = integrator;
 }
 
 void Button::Draw()
