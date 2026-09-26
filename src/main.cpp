@@ -24,10 +24,6 @@ int main()
             Vector2 mousePosition = GetMousePosition();
             userinterface.UpdateButtons(mousePosition);
             DrawFPS(820, 0);
-
-
-
-
         EndDrawing();
         
    
