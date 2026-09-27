@@ -14,10 +14,10 @@ add_subdirectory(C:/raylib/raylib raylib)
 add_executable(particlesim
     src/main.cpp
     src/calibri.ttf
-    src/ui.hpp
-    src/ui.cpp
-    src/button.cpp
-    src/button.hpp
+    src/userinterface/ui.hpp
+    src/userinterface/ui.cpp
+    src/userinterface/button.cpp
+    src/userinterface/button.hpp
     src/pairwise_algorithm/pairwise.hpp
     src/pairwise_algorithm/pairwise.cpp
     src/pairwise_algorithm/ParticlesState.hpp

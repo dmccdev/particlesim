@@ -10,7 +10,8 @@ particlesCount(particlesCount),
 integratorNumber(integratorNumber),
 particleConfigNumber(particleConfigNumber),
 particles(particlesCount),
-RK4Integrator(particlesCount)
+RK4Integrator(particlesCount),
+dt(dt)
 {
     initialiseParticles();
 }
@@ -42,7 +43,7 @@ void Pairwise::initialiseParticles()
     }
 }
 
-void Pairwise::Update(double dt)
+void Pairwise::Update()
 {
     switch(integratorNumber)
     {

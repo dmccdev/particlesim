@@ -1,5 +1,5 @@
 #include "ui.hpp"
-#include <button.hpp>
+#include "button.hpp"
 #include <iostream>
 
 UserInterface::UserInterface(Font font) :
@@ -22,6 +22,7 @@ void UserInterface::Draw()
     EulerButton.Draw();
     VerletButton.Draw();
     RK4Button.Draw();
+    
     StartButton.Draw();
 }
 

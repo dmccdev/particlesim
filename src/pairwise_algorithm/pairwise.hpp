@@ -18,11 +18,12 @@ public:
     ParticlesState particles;
     Pairwise(int particlesCount, int integratorNumber, int particleConfigNumber, double dt);
     void initialiseParticles();
-    void Update(double dt);
+    void Update();
 
     int particlesCount;
     int integratorNumber;
     int particleConfigNumber;
+    double dt;
 
 
 };
