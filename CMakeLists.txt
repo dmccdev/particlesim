@@ -22,6 +22,14 @@ add_executable(particlesim
     src/pairwise_algorithm/pairwise.cpp
     src/pairwise_algorithm/ParticlesState.hpp
     src/pairwise_algorithm/ParticlesState.cpp
+    src/barneshut_algorithm/barneshut.hpp
+    src/barneshut_algorithm/barneshut.cpp
+    src/barneshut_algorithm/node.hpp
+    src/barneshut_algorithm/node.cpp
+    src/barneshut_algorithm/particle.hpp
+    src/barneshut_algorithm/particle.cpp
+    src/barneshut_algorithm/quadtree.cpp
+    src/barneshut_algorithm/quadtree.hpp
     src/integrator/Integrator.cpp
     src/integrator/Integrator.hpp
     src/integrator/Verlet.cpp

@@ -13,10 +13,9 @@ particles(particlesCount),
 RK4Integrator(particlesCount),
 dt(dt)
 {
-    initialiseParticles();
 }
 
-void Pairwise::initialiseParticles()
+void Pairwise::InitialiseParticles()
 {
     switch(particleConfigNumber) //Initalise Particle Configuration
     {

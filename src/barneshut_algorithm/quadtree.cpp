@@ -3,10 +3,17 @@
 #include <random>
 #include <omp.h>
 
-int QuadTree::assignQuadrant(int nodeIndex, Particle &particle)
+
+QuadTree::QuadTree()
 {
-    bool above = particle.Y < nodes[nodeIndex].squareCenterY;
-    bool right = particle.X >= nodes[nodeIndex].squareCenterX;
+    nodes.reserve(20000);
+}
+
+
+int QuadTree::assignQuadrant(int nodeIndex, double particleX, double particleY) //Needs fixing
+{
+    bool above = particleY < nodes[nodeIndex].squareCenterY;
+    bool right = particleX >= nodes[nodeIndex].squareCenterX;
 
     if(above && !right)
         {return 0;}
@@ -28,7 +35,8 @@ bool QuadTree::external(int nodeIndex)
     return (nodes[nodeIndex].childFirstIndex == -1);
 }
 
-void QuadTree::buildTree(std::vector<Particle> &particles, int centerScreenX, int centerScreenY)
+
+void QuadTree::buildTree(ParticlesState &particles, int centerScreenX, int centerScreenY)
 {
     resetTree();
         
@@ -38,7 +46,7 @@ void QuadTree::buildTree(std::vector<Particle> &particles, int centerScreenX, in
     nodes[rootIndex].squareCenterY = centerScreenY;
     nodes[rootIndex].halfWidth = centerScreenX;
 
-    for(int particleIndex = 0; particleIndex < particles.size(); particleIndex++)
+    for(int particleIndex = 0; particleIndex < particles.particlesCount; particleIndex++)
     {
         insert(rootIndex, particleIndex, particles);
     }
@@ -82,7 +90,7 @@ void QuadTree::resetTree()
     nodes.clear();
 }
 
-void QuadTree::insert(int nodeIndex, int particleIndex, std::vector<Particle> &particles)
+void QuadTree::insert(int nodeIndex, int particleIndex, ParticlesState &particles)
 {
 
     if(external(nodeIndex))
@@ -103,8 +111,8 @@ void QuadTree::insert(int nodeIndex, int particleIndex, std::vector<Particle> &p
             subdivide(nodeIndex);
             int existingParticleIndex = nodes[nodeIndex].particleIndex;
             nodes[nodeIndex].particleIndex = -1; //Make parent node empty again
-            int existingQuadrantNumber = assignQuadrant(nodeIndex, particles[existingParticleIndex]);
-            int QuadrantNumber = assignQuadrant(nodeIndex, particles[particleIndex]);
+            int existingQuadrantNumber = assignQuadrant(nodeIndex, particles.X[existingParticleIndex], particles.Y[existingParticleIndex]);
+            int QuadrantNumber = assignQuadrant(nodeIndex, particles.X[particleIndex], particles.Y[particleIndex]);
 
 
             insert(nodes[nodeIndex].childFirstIndex + existingQuadrantNumber, existingParticleIndex, particles);
@@ -114,122 +122,24 @@ void QuadTree::insert(int nodeIndex, int particleIndex, std::vector<Particle> &p
     //Node internal
     else
     {
-        int quadrantNumber = assignQuadrant(nodeIndex, particles[particleIndex]);
+        int quadrantNumber = assignQuadrant(nodeIndex, particles.X[particleIndex], particles.Y[particleIndex]);
         insert(nodes[nodeIndex].childFirstIndex + quadrantNumber, particleIndex, particles);
     }
 }
 
-void QuadTree::calculateAcceleration(int nodeIndex, int particleIndex, std::vector<Particle> &particles)
+bool QuadTree::checkInsideNodeQuadrant(int nodeIndex, double particleX, double particleY)
 {
-    //Node External
-    if(external(nodeIndex))
-    {
-        //Node empty
-        if(empty(nodeIndex))
-        {
-            return;
-        }
-        //Node full
-        else
-        {
-            int existingParticleIndex = nodes[nodeIndex].particleIndex;
-            if(existingParticleIndex == particleIndex)
-            {
-                return;
-            }
-
-            double displacementX = particles[existingParticleIndex].X - particles[particleIndex].X; 
-            double displacementY = particles[existingParticleIndex].Y - particles[particleIndex].Y;
-
-            double distanceSquared = displacementX*displacementX + displacementY*displacementY;
-            double denominator =  (distanceSquared + epsilon*epsilon);
-            double factor = G / sqrt(denominator*denominator*denominator) * particles[existingParticleIndex].mass;
-
-            double deltaAccelerationX = factor * displacementX;
-            double deltaAccelerationY = factor * displacementY;
-
-            particles[particleIndex].accelerationX += deltaAccelerationX;
-            particles[particleIndex].accelerationY += deltaAccelerationY;
-
-            return;
-        }
-    }
-    //Node internal
-    else
-    {            
-        double displacementX = nodes[nodeIndex].centreMassX - particles[particleIndex].X; 
-        double displacementY = nodes[nodeIndex].centreMassY - particles[particleIndex].Y;
-
-        double distanceSquared = displacementX*displacementX + displacementY*displacementY; 
- 
-        if(distanceSquared == 0.0)
-        {
-            int childIndex = nodes[nodeIndex].childFirstIndex;
-            calculateAcceleration(childIndex, particleIndex, particles);
-            calculateAcceleration(childIndex+1, particleIndex, particles);
-            calculateAcceleration(childIndex+2, particleIndex, particles);
-            calculateAcceleration(childIndex+3, particleIndex, particles);
-            return;  
-        }
-
-        // double distance = sqrt(distanceSquared);
-        double ratio = (4*nodes[nodeIndex].halfWidth*nodes[nodeIndex].halfWidth)/distanceSquared;
-
-
-        if(ratio < theta)
-        {
-            double denominator =  (distanceSquared + epsilonSquared);
-            double factor = G / sqrt(denominator*denominator*denominator) * nodes[nodeIndex].mass;
-
-            double deltaAccelerationX = factor * displacementX;
-            double deltaAccelerationY = factor * displacementY;
-
-            particles[particleIndex].accelerationX += deltaAccelerationX;
-            particles[particleIndex].accelerationY += deltaAccelerationY;
-
-        }
-        else 
-        {
-            int childIndex = nodes[nodeIndex].childFirstIndex;
-            calculateAcceleration(childIndex, particleIndex, particles);
-            calculateAcceleration(childIndex+1, particleIndex, particles);
-            calculateAcceleration(childIndex+2, particleIndex, particles);
-            calculateAcceleration(childIndex+3, particleIndex, particles);
-            return;
-        }
-    }
-}
-
-bool QuadTree::checkInsideNodeQuadrant(int nodeIndex, Particle &particle)
-{
-    bool left = nodes[nodeIndex].squareCenterX - nodes[nodeIndex].halfWidth >= particle.X;
-    bool right = nodes[nodeIndex].squareCenterX + nodes[nodeIndex].halfWidth < particle.X;
-    bool above = nodes[nodeIndex].squareCenterY - nodes[nodeIndex].halfWidth >= particle.Y;
-    bool below = nodes[nodeIndex].squareCenterY + nodes[nodeIndex].halfWidth < particle.Y;
+    bool left = nodes[nodeIndex].squareCenterX - nodes[nodeIndex].halfWidth >= particleX;
+    bool right = nodes[nodeIndex].squareCenterX + nodes[nodeIndex].halfWidth < particleX;
+    bool above = nodes[nodeIndex].squareCenterY - nodes[nodeIndex].halfWidth >= particleY;
+    bool below = nodes[nodeIndex].squareCenterY + nodes[nodeIndex].halfWidth < particleY;
     bool insideX =  !left && !right && !above && !below;
 
     return insideX;
 }
 
-void QuadTree::Update(std::vector<Particle> &particles, double dt)
-{
-    #pragma omp parallel for
-    for(int particleIndex = 0; particleIndex < numberOfParticles; particleIndex++)
-    {
-        particles[particleIndex].accelerationX = 0.0;
-        particles[particleIndex].accelerationY = 0.0;
 
-        calculateAcceleration(rootIndex, particleIndex, particles);
-    
-        particles[particleIndex].velocityX += dt * particles[particleIndex].accelerationX;
-        particles[particleIndex].velocityY += dt * particles[particleIndex].accelerationY;
-
-        particles[particleIndex].X += dt * particles[particleIndex].velocityX;
-        particles[particleIndex].Y += dt * particles[particleIndex].velocityY;
-    }
-}
-
-void QuadTree::calculateNodeCentresOfMass(int nodeIndex, std::vector<Particle> &particles)
+void QuadTree::calculateNodeCentresOfMass(int nodeIndex, ParticlesState &particles)
 {
     if(external(nodeIndex)) //Node External
     {
@@ -240,10 +150,10 @@ void QuadTree::calculateNodeCentresOfMass(int nodeIndex, std::vector<Particle> &
         else //Node Full
         {
             //Assign Node with particle position and mass
-            nodes[nodeIndex].centreMassX = particles[nodes[nodeIndex].particleIndex].X;
-            nodes[nodeIndex].centreMassY = particles[nodes[nodeIndex].particleIndex].Y;
+            nodes[nodeIndex].centreMassX = particles.X[nodes[nodeIndex].particleIndex];
+            nodes[nodeIndex].centreMassY = particles.Y[nodes[nodeIndex].particleIndex];
 
-            nodes[nodeIndex].mass = particles[nodes[nodeIndex].particleIndex].mass;
+            nodes[nodeIndex].mass = particles.mass[nodes[nodeIndex].particleIndex];
             return;
         }
     }
@@ -276,7 +186,7 @@ void QuadTree::calculateNodeCentresOfMass(int nodeIndex, std::vector<Particle> &
         nodes[nodeIndex].mass += nodes[childIndex+2].mass;
         nodes[nodeIndex].mass += nodes[childIndex+3].mass;
 
-        //Divide by total mass for true center of mass
+        //Divide by total mass for final center of mass bit
 
         nodes[nodeIndex].centreMassX /= nodes[nodeIndex].mass;
         nodes[nodeIndex].centreMassY /= nodes[nodeIndex].mass;
@@ -285,74 +195,26 @@ void QuadTree::calculateNodeCentresOfMass(int nodeIndex, std::vector<Particle> &
     }
 }
 
-void QuadTree::Draw(std::vector<Particle> &particles)
-{
-    for(int i = 0; i < numberOfParticles; i++)
-    {
-        DrawPixel(particles[i].X, particles[i].Y, WHITE);
-    }
-}
 
-void QuadTree::printData(std::vector<Particle> &particles) //Debug func
+
+void QuadTree::printData(ParticlesState &particles) //Debug func
 {
     std::cout << "Particles acceleration: " << '\n';
     for(int i = 0; i < numberOfParticles; i++)
     {
-        std::cout << particles[i].accelerationX << ", " << particles[i].accelerationY << '\n';
+        std::cout << particles.accelerationX[i] << ", " << particles.accelerationY[i] << '\n';
     }
 
     std::cout << "Particles velocity: " << '\n';
     for(int i = 0; i < numberOfParticles; i++)
     {
-        std::cout << particles[i].velocityX << ", " << particles[i].velocityY << '\n';
+        std::cout << particles.velocityX[i] << ", " << particles.velocityY[i] << '\n';
     }
 
     std::cout << "Particles position: " << '\n';
     for(int i = 0; i < numberOfParticles; i++)
     {
-        std::cout << particles[i].X << ", " << particles[i].Y << '\n';
+        std::cout << particles.X[i] << ", " << particles.Y[i] << '\n';
     }
 }
 
-std::vector<Particle> QuadTree::initialiseParticles(int numberOfParticles)
-{
-    this->numberOfParticles = numberOfParticles; 
-    //Initialise a N length vector
-    std::vector<Particle> particles;
-    particles.reserve(numberOfParticles);
-    
-    std::random_device rd;
-    std::mt19937 generator64(rd());
-
-    std::uniform_real_distribution<double> distributionRadius(100, 400);
-    std::uniform_real_distribution<double> distributionTheta(0, 2 * PI);
-
-    //Initialise Center Mass
-    particles.push_back(Particle(450.0, 450.0, 0.0, 0.0, 10000.0));
-
-    for(int i = 1; i < numberOfParticles; i++)
-    {
-        //Calculating random Position
-        double radius = distributionRadius(generator64);
-        double theta = distributionTheta(generator64);
-
-        double X = 450 + radius * std::cos(theta);
-        double Y = 450 + radius * std::sin(theta);
-
-        //Calculating random Velocity
-        double displacementX = X - 450.0;
-        double displacementY = Y - 450.0;
-
-        double distance = sqrt(displacementX*displacementX + displacementY*displacementY);
-        double speed = sqrt(G * particles[0].mass / distance);
-
-        double tangentialVelocityX = -displacementY/distance * speed;
-        double tangentialVelocityY = displacementX/distance * speed;
-
-        double velocityX = tangentialVelocityX;
-        double velocityY = tangentialVelocityY;
-
-        particles.push_back(Particle(X, Y, velocityX, velocityY, 1.0));
-    }
-    return particles;
-}

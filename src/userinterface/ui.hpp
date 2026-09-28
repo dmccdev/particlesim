@@ -11,7 +11,6 @@ public:
     Button EulerButton;
     Button VerletButton;
     Button RK4Button;
-    
     Button StartButton;
 
     bool simulationStart;
