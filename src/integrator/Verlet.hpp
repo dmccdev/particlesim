@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Integrator.hpp"
 #include <vector>
 #include <Eigen/Dense>
 #include "particlestate/ParticlesState.hpp"
 
 
 
-class Verlet : public Integrator
+class Verlet
 {
 public:
     Vec nextAccelerationX;

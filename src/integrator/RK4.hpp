@@ -2,13 +2,12 @@
 
 #include <vector>
 #include <Eigen/Dense>
-#include "Integrator.hpp"
 #include "particlestate/ParticlesState.hpp"
 
 
 using Vec = Eigen::VectorXd;
 
-class RK4: public Integrator
+class RK4
 {
 public:
     Vec virtualX;

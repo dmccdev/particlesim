@@ -12,6 +12,9 @@ public:
     Button VerletButton;
     Button RK4Button;
     Button StartButton;
+    Button TriangleButton;
+    Button GalaxyButton;
+    Button BinaryGalaxyButton;
 
     bool simulationStart;
 

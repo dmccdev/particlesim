@@ -26,12 +26,8 @@ add_executable(particlesim
     src/barneshut_algorithm/barneshut.cpp
     src/barneshut_algorithm/node.hpp
     src/barneshut_algorithm/node.cpp
-    src/barneshut_algorithm/particle.hpp
-    src/barneshut_algorithm/particle.cpp
     src/barneshut_algorithm/quadtree.cpp
     src/barneshut_algorithm/quadtree.hpp
-    src/integrator/Integrator.cpp
-    src/integrator/Integrator.hpp
     src/integrator/Verlet.cpp
     src/integrator/Verlet.hpp
     src/integrator/RK4.cpp

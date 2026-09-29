@@ -11,6 +11,7 @@ public:
     BarnesHut(int particlesCount, int integratorNumber, int particleConfigNumber, double dt);
 
     void InitialiseParticles();
+    void calculateAccelerations();
 
     Euler EulerIntegrator;
     Verlet VerletIntegrator;
@@ -28,7 +29,7 @@ public:
     int particleConfigNumber;
 
     double dt;
-    double G = 0.1;
+    double G = 1.0;
 
     double epsilon = 0.75;
     double epsilonSquared = epsilon*epsilon;

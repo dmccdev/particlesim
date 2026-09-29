@@ -16,7 +16,7 @@ int main()
     std::unique_ptr<Pairwise> algorithm_pairwise = nullptr;
     std::unique_ptr<BarnesHut> algorithm_barneshut = nullptr;
 
-    UserInterface userinterface(calibri);
+    UserInterface userinterface(GetFontDefault());
     while(WindowShouldClose() == false)
     {
         BeginDrawing();
@@ -44,7 +44,7 @@ int main()
                     //Selecting Algorithm for Initialisation
                     if(userinterface.BarnesHutButton.buttonPressed)
                     {
-                        algorithm_barneshut = std::make_unique<BarnesHut>(4000, integratorSelectionValue, 1, 0.1);
+                        algorithm_barneshut = std::make_unique<BarnesHut>(15000, integratorSelectionValue, 1, 0.1);
                         algorithm_barneshut->InitialiseParticles();
 
                     }

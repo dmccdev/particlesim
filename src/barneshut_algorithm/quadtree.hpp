@@ -22,7 +22,6 @@ public:
     void resetTree();
     bool empty(int nodeIndex); 
     bool external(int nodeIndex); 
-    void calculateAcceleration(int nodeIndex, int particleIndex, ParticlesState &particles);
     void insert(int nodeIndex, int particleIndex, ParticlesState &particles);
     void subdivide(int nodeIndex);
     int assignQuadrant(int nodeIndex , double particleX, double particleY); 

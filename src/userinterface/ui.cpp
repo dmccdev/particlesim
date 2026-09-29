@@ -3,13 +3,18 @@
 #include <iostream>
 
 UserInterface::UserInterface(Font font) :
-    BarnesHutButton(50, 75, 375, 200, "BARNES-HUT", font, RED, false, false),
-    PairwiseButton(475, 75, 375, 200, "PAIRWISE", font, RED, false, false),
+    BarnesHutButton(50, 100, 375, 150, "BARNESHUT", font, RED, false, false),
+    PairwiseButton(475, 100, 375, 150, "PAIRWISE", font, RED, false, false),
 
-    EulerButton(75, 400, 200, 200, "EULER", font, RED, true, false),
-    VerletButton(350, 400, 200, 200, "VERLET", font, RED, true, false),
-    RK4Button(625, 400, 200, 200, "RK4", font, RED, true, false),
-    StartButton(250, 675, 400, 175, "Start", font, RED, false, true),
+    EulerButton(75, 325, 200, 150, "EULER", font, RED, true, false),
+    VerletButton(350, 325, 200, 150, "VERLET", font, RED, true, false),
+    RK4Button(625, 325, 200, 150, "RK4", font, RED, true, false),
+
+    TriangleButton(75, 540, 200, 150, "TRIANGLE", font, RED, false, false),
+    GalaxyButton(350, 540, 200, 150, "GALAXY", font, RED, false, false),
+    BinaryGalaxyButton(625, 540, 200, 150, "DUAL GALAXY", font, RED, false, false),
+
+    StartButton(250, 750, 400, 100, "START", font, RED, false, true),
     simulationStart(false)
 {
 }
@@ -22,8 +27,19 @@ void UserInterface::Draw()
     EulerButton.Draw();
     VerletButton.Draw();
     RK4Button.Draw();
+
+    TriangleButton.Draw();
+    GalaxyButton.Draw();
+    BinaryGalaxyButton.Draw();
     
     StartButton.Draw();
+
+    //Titles
+    DrawText("PARTICLE SIM", 350, 25, 30, WHITE);
+    DrawText("ALGORITHM", 395, 70, 20, WHITE);
+    DrawText("INTEGRATOR", 385, 285, 20, WHITE);
+    DrawText("PARTICLE CONFIGURATION", 315, 500, 20, WHITE);
+
 }
 
 void UserInterface::UpdateButtons(Vector2 mousePosition)

@@ -1,9 +1,7 @@
 #pragma once
-#include "Integrator.hpp"
+#include "particlestate/ParticlesState.hpp"
 
-
-
-class Euler: public Integrator
+class Euler
 {
 public:
     void Update(ParticlesState &particles, double dt);

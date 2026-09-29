@@ -40,26 +40,30 @@ void BarnesHut::InitialiseParticles()
     }
 }
 
-void BarnesHut::Update()
+void BarnesHut::calculateAccelerations()
 {
-
     particles.accelerationX.setZero();
     particles.accelerationY.setZero();
 
     quadtree.buildTree(particles, 450, 450);
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(int particleIndex = 0; particleIndex < particleCount; particleIndex++)
     {
         calculateAcceleration(0, particleIndex);
     }
+}
 
+void BarnesHut::Update()
+{
     switch(integratorNumber)
     {
         case 1:
+            calculateAccelerations();
             EulerIntegrator.Update(particles, dt);
             break;
 
         case 2:
+            calculateAccelerations();
             VerletIntegrator.Update(particles, dt);
             break;
 
@@ -130,7 +134,7 @@ void BarnesHut::calculateAcceleration(int nodeIndex, int particleIndex)
         double ratio = (4*quadtree.nodes[nodeIndex].halfWidth*quadtree.nodes[nodeIndex].halfWidth)/distanceSquared;
 
 
-        if(ratio < theta)
+        if(ratio < thetaSquared)
         {
             double denominator =  (distanceSquared + epsilonSquared);
             double factor = G / sqrt(denominator*denominator*denominator) * quadtree.nodes[nodeIndex].mass;

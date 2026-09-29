@@ -27,7 +27,7 @@ void RK4::CalculateSlopes(ParticlesState &particles, double dt) //Private
 {
 
     //Calculate acceleration
-    CalculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
+    // CalculateAccelerationsPairwise(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
 
     //K1
     Kv1X = particles.accelerationX;
@@ -39,20 +39,20 @@ void RK4::CalculateSlopes(ParticlesState &particles, double dt) //Private
 
     //K2
 
-    CalculateAccelerations(virtualX, virtualY, Kv2X, Kv2Y, particles.mass);
+    // CalculateAccelerationsPairwise(virtualX, virtualY, Kv2X, Kv2Y, particles.mass);
     Kr2X = particles.velocityX + dt/2 * Kv1X;
     Kr2Y = particles.velocityY + dt/2 * Kv1Y;
     UpdateVirtualPosition(particles, Kr2X, Kr2Y, dt/2);
 
 
     //K3
-    CalculateAccelerations(virtualX, virtualY, Kv3X, Kv3Y, particles.mass);
+    // CalculateAccelerationsPairwise(virtualX, virtualY, Kv3X, Kv3Y, particles.mass);
     Kr3X = particles.velocityX + dt/2 * Kv2X;
     Kr3Y = particles.velocityY + dt/2 * Kv2Y;
     UpdateVirtualPosition(particles, Kr3X, Kr3Y, dt);
 
     //K4
-    CalculateAccelerations(virtualX, virtualY, Kv4X, Kv4Y, particles.mass);
+    // CalculateAccelerationsPairwise(virtualX, virtualY, Kv4X, Kv4Y, particles.mass);
     Kr4X = particles.velocityX + dt * Kv3X;
     Kr4Y = particles.velocityY + dt * Kv3Y;
 }
