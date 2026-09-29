@@ -1,5 +1,6 @@
 #pragma once
-#include "ParticlesState.hpp"
+
+#include "particlestate/ParticlesState.hpp"
 #include "integrator/Euler.hpp"
 #include "integrator/Verlet.hpp"
 #include "integrator/RK4.hpp"

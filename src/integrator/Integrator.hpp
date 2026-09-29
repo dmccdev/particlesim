@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <pairwise_algorithm/ParticlesState.hpp>
+#include "particlestate/ParticlesState.hpp"
 
 using Vec = Eigen::VectorXd;
 

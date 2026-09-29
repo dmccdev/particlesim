@@ -3,7 +3,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include "Integrator.hpp"
-#include <pairwise_algorithm/ParticlesState.hpp>
+#include "particlestate/ParticlesState.hpp"
 
 
 using Vec = Eigen::VectorXd;

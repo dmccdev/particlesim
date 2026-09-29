@@ -3,7 +3,7 @@
 #include "Integrator.hpp"
 #include <vector>
 #include <Eigen/Dense>
-#include <pairwise_algorithm/ParticlesState.hpp>
+#include "particlestate/ParticlesState.hpp"
 
 
 

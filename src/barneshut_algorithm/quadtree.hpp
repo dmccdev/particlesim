@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pairwise_algorithm/ParticlesState.hpp"
+#include "particlestate/ParticlesState.hpp"
 #include "node.hpp"
 #include <vector>
 #include <raylib.h>

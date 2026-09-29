@@ -20,8 +20,8 @@ add_executable(particlesim
     src/userinterface/button.hpp
     src/pairwise_algorithm/pairwise.hpp
     src/pairwise_algorithm/pairwise.cpp
-    src/pairwise_algorithm/ParticlesState.hpp
-    src/pairwise_algorithm/ParticlesState.cpp
+    src/particlestate/ParticlesState.hpp
+    src/particlestate/ParticlesState.cpp
     src/barneshut_algorithm/barneshut.hpp
     src/barneshut_algorithm/barneshut.cpp
     src/barneshut_algorithm/node.hpp
