@@ -12,9 +12,9 @@ public:
     Button VerletButton;
     Button RK4Button;
     Button StartButton;
-    Button TriangleButton;
     Button GalaxyButton;
-    Button BinaryGalaxyButton;
+    Button SingleStarButton;
+    Button BinaryStarButton;
 
     bool simulationStart;
 
@@ -24,6 +24,7 @@ public:
     void UpdateButtons(Vector2 mousePosition);
     void ButtonPressed(Vector2 mousePosition, Button &button);
 
+    void SetActiveParticleConfiguration(Button &button);
     void SetActiveIntegrator(Button &button);
     void SetActiveAlgorithm(Button &button);
     void SimulationBegin();

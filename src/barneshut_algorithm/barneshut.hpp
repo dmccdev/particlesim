@@ -11,7 +11,7 @@ public:
     BarnesHut(int particlesCount, int integratorNumber, int particleConfigNumber, double dt);
 
     void InitialiseParticles();
-    void calculateAccelerations();
+    void calculateAccelerations(Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass);
 
     Euler EulerIntegrator;
     Verlet VerletIntegrator;
@@ -22,7 +22,7 @@ public:
     
     void Update();
 
-    void calculateAcceleration(int nodeIndex, int particleIndex);
+    void calculateAcceleration(int nodeIndex, int particleIndex, Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass);
 
     int particleCount;
     int integratorNumber;

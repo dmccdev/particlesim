@@ -25,7 +25,8 @@ particlesCount(particlesCount)
 
 ParticlesState::~ParticlesState()
 {
-    if (particleTexture.id != 0) {
+    if (particleTexture.id != 0) 
+    {
         UnloadTexture(particleTexture);
     }
 }
@@ -47,13 +48,13 @@ void ParticlesState::PrintData()// Debug
 
 }
 
-void ParticlesState::Galaxy()
+void ParticlesState::SingleStar()
 {
 
     std::random_device rd;
     std::mt19937 generator64(rd());
 
-    std::uniform_real_distribution<double> distributionRadius(150, 450);
+    std::uniform_real_distribution<double> distributionRadius(50, 100);
     std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
 
     //Initialise Center Mass
@@ -88,7 +89,7 @@ void ParticlesState::Galaxy()
     }
 }
 
-void ParticlesState::BinaryGalaxy()
+void ParticlesState::BinaryStar()
 {
 
     std::random_device rd;
@@ -149,66 +150,93 @@ void ParticlesState::BinaryGalaxy()
     }
 }
 
-void ParticlesState::Triangle()
+void ParticlesState::Galaxy()
 {
-
     std::random_device rd;
     std::mt19937 generator64(rd());
 
-    std::uniform_real_distribution<double> distributionRadius(100, 400);
-    std::uniform_real_distribution<double> distributionTheta(0, 2*pi);
-    std::uniform_real_distribution<double> distributionMass(0, 100);
+    double blackHoleX = 450.0;
+    double blackHoleY = 450.0;
+    double blackHoleMass = 5000000.0;
 
+    X[0] = blackHoleX;
+    Y[0] = blackHoleY;
+    mass[0] = blackHoleMass;
 
-    X[0] = 450.0;
-    Y[0] = 450;
-    mass[0] = 1000000.0;
+    velocityX[0] = 0.0;
+    velocityY[0] = 0.0;
 
-    for(int i = 1; i < particlesCount; i++)
+    //2D Random Polar Co ordiantes
+    std::uniform_real_distribution<double> distributionRadius(35.0, 320.0); 
+    std::uniform_real_distribution<double> distributionTheta(0.0, 2.0 * pi);
+    std::normal_distribution<double> diskThickness(0.0, 12.0);
+    std::uniform_real_distribution<double> velocityVariation(0.95, 1.05);
+
+    for (int i = 1; i < particlesCount; i++)
     {
-        //Position
         double radius = distributionRadius(generator64);
         double theta = distributionTheta(generator64);
 
-        X[i] = X[0] + radius * std::cos(theta);
-        Y[i] = Y[0] + radius * std::sin(theta);
+        // Circular position
+        double offsetX = radius * std::cos(theta);
+        double offsetY = radius * std::sin(theta);
 
-        //Velocity
-        double displacementX = X[i] - X[0];
-        double displacementY = Y[i] - Y[0];
+        // Make the disk thinner vertically
+        offsetY *= 0.25;
 
-        double distance = sqrt(displacementX*displacementX + displacementY*displacementY);
-        double speed = sqrt(G * mass[0] / distance);
+        X[i] = blackHoleX + offsetX;
+        Y[i] = blackHoleY + offsetY + diskThickness(generator64);
 
-        double tangentialVelocityX = -displacementY/distance * speed;
-        double tangentialVelocityY = displacementX/distance * speed;
+        // Displacement from black hole
+        double displacementX = X[i] - blackHoleX;
+        double displacementY = Y[i] - blackHoleY;
 
-        velocityX[i] = tangentialVelocityX;
-        velocityY[i] = tangentialVelocityY;
+        double distanceSquared =
+            displacementX * displacementX +
+            displacementY * displacementY;
 
-        //Mass
-        mass[i] = distributionMass(generator64);
+        double distance = std::sqrt(distanceSquared);
+
+        // Circular orbital velocity
+        double orbitalSpeed =
+            std::sqrt(G * blackHoleMass / distance);
+
+        orbitalSpeed *= velocityVariation(generator64);
+
+        // Tangential velocity
+        velocityX[i] =
+            -displacementY / distance * orbitalSpeed;
+
+        velocityY[i] =
+             displacementX / distance * orbitalSpeed;
+
+        mass[i] = 1.0;
     }
 }
 
+
+
+
 void ParticlesState::Draw()
 {
+    if (particlesCount <= 0)
+        return;
+
     speedSquared = velocityX.array().square() + velocityY.array().square();
     double maxSpeedSquared = speedSquared.maxCoeff();
-    if (particlesCount <= 0) return;
-
-    double maxSpeed = speedSquared.maxCoeff();
-    float pointSize = 2.0f; // Half-size = 1.0f
 
     BeginBlendMode(BLEND_ADDITIVE);
+
     rlBegin(RL_QUADS);
+
     for (int i = 0; i < particlesCount; i++)
     {
-        if (i > 0 && (i % 2000 == 0)) 
+        if (i % 2000 == 0)
         {
             rlEnd();
             rlBegin(RL_QUADS);
         }
+
         Color c = GetColorWhiteToRed(speedSquared[i], maxSpeedSquared);
 
         rlColor4ub(c.r, c.g, c.b, c.a);
@@ -216,19 +244,58 @@ void ParticlesState::Draw()
         float px = static_cast<float>(X[i]);
         float py = static_cast<float>(Y[i]);
 
-        // Draw a small 2x2 square quad for each particle
         rlVertex2f(px - 1.0f, py - 1.0f);
         rlVertex2f(px - 1.0f, py + 1.0f);
         rlVertex2f(px + 1.0f, py + 1.0f);
         rlVertex2f(px + 1.0f, py - 1.0f);
     }
+
     rlEnd();
+
     EndBlendMode();
 }
 
-Color ParticlesState::GetColorWhiteToRed(double speed, double maxSpeed) 
+
+Color ParticlesState::GetColorWhiteToRed(
+    double speedSquared,
+    double maxSpeedSquared)
 {
-    float t = (float) std::clamp(speed, 0.0, maxSpeed) / maxSpeed;
-    
-    return ColorLerp(BLUE, RED, t);
+    if (maxSpeedSquared <= 0.0)
+        return WHITE;
+
+    float t = static_cast<float>(speedSquared / maxSpeedSquared);
+
+    t = std::clamp(t, 0.0f, 1.0f);
+
+    // Smoothstep
+    t = t * t * (3.0f - 2.0f * t);
+
+    // Blue -> Purple
+    if (t < 0.25f)
+    {
+        float localT = t / 0.25f;
+
+        return ColorLerp(Color{40, 80, 255, 255}, Color{150, 30, 255, 255}, localT);
+    }
+
+    // Purple -> Red
+    if (t < 0.50f)
+    {
+        float localT = (t - 0.25f) / 0.25f;
+
+        return ColorLerp(Color{150, 30, 255, 255}, Color{255, 30, 30, 255}, localT);
+    }
+
+    // Red -> Orange
+    if (t < 0.75f)
+    {
+        float localT = (t - 0.50f) / 0.25f;
+
+        return ColorLerp(Color{255, 30, 30, 255}, Color{255, 150, 10, 255}, localT);
+    }
+
+    // Orange -> White
+    float localT = (t - 0.75f) / 0.25f;
+
+    return ColorLerp(Color{255, 150, 10, 255}, WHITE, localT);
 }

@@ -22,9 +22,9 @@ public:
     ParticlesState(int particlesCount);
     ~ParticlesState();
     void PrintData();
+    void BinaryStar();
+    void SingleStar();
     void Galaxy();
-    void BinaryGalaxy();
-    void Triangle();
     void Draw();
 private:
     Color GetColorWhiteToRed(double speed, double maxSpeed);

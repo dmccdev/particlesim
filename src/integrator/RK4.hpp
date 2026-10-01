@@ -18,7 +18,7 @@ public:
     Vec Kv4X, Kv4Y, Kr4X, Kr4Y;
     RK4(int numberOfParticles);
     void Update(ParticlesState &particles, double dt);
-private:
     void UpdateVirtualPosition(ParticlesState &particles, Vec &particleSlopeX, Vec &particleSlopeY, double dt);
+private:
     void CalculateSlopes(ParticlesState &particles, double dt);
 };

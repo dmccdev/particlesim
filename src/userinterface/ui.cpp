@@ -3,18 +3,18 @@
 #include <iostream>
 
 UserInterface::UserInterface(Font font) :
-    BarnesHutButton(50, 100, 375, 150, "BARNESHUT", font, RED, false, false),
-    PairwiseButton(475, 100, 375, 150, "PAIRWISE", font, RED, false, false),
+    BarnesHutButton(50, 100, 375, 150, "BARNESHUT", font, RED, true, false, false, false),
+    PairwiseButton(475, 100, 375, 150, "PAIRWISE", font, RED, true, false, false, false),
 
-    EulerButton(75, 325, 200, 150, "EULER", font, RED, true, false),
-    VerletButton(350, 325, 200, 150, "VERLET", font, RED, true, false),
-    RK4Button(625, 325, 200, 150, "RK4", font, RED, true, false),
+    EulerButton(75, 325, 200, 150, "EULER", font, RED, false, true, false, false),
+    VerletButton(350, 325, 200, 150, "VERLET", font, RED, false, true, false, false),
+    RK4Button(625, 325, 200, 150, "RK4", font, RED, false, true, false, false),
 
-    TriangleButton(75, 540, 200, 150, "TRIANGLE", font, RED, false, false),
-    GalaxyButton(350, 540, 200, 150, "GALAXY", font, RED, false, false),
-    BinaryGalaxyButton(625, 540, 200, 150, "DUAL GALAXY", font, RED, false, false),
+    GalaxyButton(75, 540, 200, 150, "GALAXY", font, RED, false, false, false, true),
+    SingleStarButton(350, 540, 200, 150, "SINGLE STAR", font, RED, false, false, false, true),
+    BinaryStarButton(625, 540, 200, 150, "BINARY STAR", font, RED, false, false, false, true),
 
-    StartButton(250, 750, 400, 100, "START", font, RED, false, true),
+    StartButton(250, 750, 400, 100, "START", font, RED, false, false, true, false),
     simulationStart(false)
 {
 }
@@ -28,14 +28,14 @@ void UserInterface::Draw()
     VerletButton.Draw();
     RK4Button.Draw();
 
-    TriangleButton.Draw();
     GalaxyButton.Draw();
-    BinaryGalaxyButton.Draw();
+    SingleStarButton.Draw();
+    BinaryStarButton.Draw();
     
     StartButton.Draw();
 
-    //Titles
-    DrawText("PARTICLE SIM", 350, 25, 30, WHITE);
+    //Titles Text
+    DrawText("N BODY PARTICLE SIMULATION", 204, 25, 30, WHITE);
     DrawText("ALGORITHM", 395, 70, 20, WHITE);
     DrawText("INTEGRATOR", 385, 285, 20, WHITE);
     DrawText("PARTICLE CONFIGURATION", 315, 500, 20, WHITE);
@@ -51,6 +51,11 @@ void UserInterface::UpdateButtons(Vector2 mousePosition)
     ButtonPressed(mousePosition, VerletButton);
     ButtonPressed(mousePosition, RK4Button);
 
+    ButtonPressed(mousePosition, GalaxyButton);
+    ButtonPressed(mousePosition, SingleStarButton);
+    ButtonPressed(mousePosition, BinaryStarButton);
+
+
     ButtonPressed(mousePosition, StartButton);
 }
 
@@ -64,17 +69,32 @@ void UserInterface::ButtonPressed(Vector2 mousePosition, Button &button)
             SimulationBegin();
             return;
         }
-
-
-        if (button.integrator)
+        else if (button.integrator)
         {
             SetActiveIntegrator(button);
         }
-        else
+        else if(button.algorithm)
         {
             SetActiveAlgorithm(button);
         }
+        else
+        {
+            SetActiveParticleConfiguration(button);
+        }
     }
+}
+
+void UserInterface::SetActiveAlgorithm(Button &button)
+{
+    //Turns them all of and then makes the one clicked on
+    PairwiseButton.buttonPressed = false;
+    PairwiseButton.buttonColour = RED;
+
+    BarnesHutButton.buttonPressed = false;
+    BarnesHutButton.buttonColour = RED;
+
+    button.buttonPressed = true;
+    button.buttonColour = GREEN;
 }
 
 void UserInterface::SetActiveIntegrator(Button &button)
@@ -93,14 +113,17 @@ void UserInterface::SetActiveIntegrator(Button &button)
     button.buttonColour = GREEN;
 }
 
-void UserInterface::SetActiveAlgorithm(Button &button)
+void UserInterface::SetActiveParticleConfiguration(Button &button)
 {
     //Turns them all of and then makes the one clicked on
-    BarnesHutButton.buttonPressed = false;
-    BarnesHutButton.buttonColour = RED;
+    GalaxyButton.buttonPressed = false;
+    GalaxyButton.buttonColour = RED;
 
-    PairwiseButton.buttonPressed = false;
-    PairwiseButton.buttonColour = RED;
+    SingleStarButton.buttonPressed = false;
+    SingleStarButton.buttonColour = RED;
+
+    BinaryStarButton.buttonPressed = false;
+    BinaryStarButton.buttonColour = RED;
 
     button.buttonPressed = true;
     button.buttonColour = GREEN;
@@ -112,8 +135,12 @@ void UserInterface::SimulationBegin()
     {
         if(RK4Button.buttonPressed || EulerButton.buttonPressed || VerletButton.buttonPressed)
         {
-            std::cout << "Begin";
-            simulationStart = true;
+            if(GalaxyButton.buttonPressed || SingleStarButton.buttonPressed || BinaryStarButton.buttonPressed)
+            {
+                std::cout << "Begin";
+                simulationStart = true;
+            }
+
         }
     }
 }

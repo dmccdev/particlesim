@@ -9,6 +9,7 @@
 int main()
 {
     int integratorSelectionValue;
+    int particleConfigSelectionValue;
     InitWindow(900, 900, "particlesim2");
     SetTargetFPS(60);
     Font calibri = LoadFontEx("src/calibri.ttf", 30, NULL, 0);
@@ -41,16 +42,30 @@ int main()
                         integratorSelectionValue = 3;
                     }
 
+                    //Selecting Particle Configuration for Initialisation
+                    if(userinterface.SingleStarButton.buttonPressed)
+                    {
+                        particleConfigSelectionValue = 1;
+                    }
+                    else if(userinterface.BinaryStarButton.buttonPressed)
+                    {
+                        particleConfigSelectionValue = 2;
+                    }
+                    else if(userinterface.GalaxyButton.buttonPressed)
+                    {
+                        particleConfigSelectionValue = 3;
+                    }
+
                     //Selecting Algorithm for Initialisation
                     if(userinterface.BarnesHutButton.buttonPressed)
                     {
-                        algorithm_barneshut = std::make_unique<BarnesHut>(15000, integratorSelectionValue, 1, 0.1);
+                        algorithm_barneshut = std::make_unique<BarnesHut>(20000, integratorSelectionValue, particleConfigSelectionValue, 0.01);
                         algorithm_barneshut->InitialiseParticles();
 
                     }
                     else if(userinterface.PairwiseButton.buttonPressed)
                     {
-                        algorithm_pairwise = std::make_unique<Pairwise>(4000, integratorSelectionValue, 1, 0.1);
+                        algorithm_pairwise = std::make_unique<Pairwise>(4000, integratorSelectionValue, particleConfigSelectionValue, 0.01);
                         algorithm_pairwise->InitialiseParticles();
                     }
                 }

@@ -20,13 +20,13 @@ void Pairwise::InitialiseParticles()
     switch(particleConfigNumber) //Initalise Particle Configuration
     {
     case 1:
-        particles.Galaxy();
+        particles.SingleStar();
         break;
     case 2:
-        particles.BinaryGalaxy();
+        particles.BinaryStar();
         break;
     case 3:
-        particles.Triangle();
+        particles.Galaxy();
         break;
     }
 
@@ -35,6 +35,7 @@ void Pairwise::InitialiseParticles()
         case 1:
             break;
         case 2:
+            CalculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
             VerletIntegrator.Initiate(particles);
             break;
         case 3:
@@ -47,18 +48,60 @@ void Pairwise::Update()
     switch(integratorNumber)
     {
     case 1: //Euler
+
         CalculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
         EulerIntegrator.Update(particles, dt);
         particles.Draw();
         break;
-    case 2: //Verlet
-        VerletIntegrator.Update(particles, dt);
+
+    case 2: //Velocity Verlet
+
+        particles.accelerationX = VerletIntegrator.nextAccelerationX;
+        particles.accelerationY = VerletIntegrator.nextAccelerationY;
+        particles.X = particles.X + particles.velocityX*dt + dt*dt *0.5*particles.accelerationX;
+        particles.Y = particles.Y + particles.velocityY*dt + dt*dt *0.5*particles.accelerationY;
+        CalculateAccelerations(particles.X, particles.Y, VerletIntegrator.nextAccelerationX, VerletIntegrator.nextAccelerationY, particles.mass);
+        particles.velocityX = particles.velocityX + 0.5 * (particles.accelerationX + VerletIntegrator.nextAccelerationX)*dt;
+        particles.velocityY = particles.velocityY + 0.5 * (particles.accelerationY + VerletIntegrator.nextAccelerationY)*dt;   
         particles.Draw();
         break;
+
     case 3: //RK4
+
+        //Calculate acceleration
+        CalculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
+
+        //K1
+        RK4Integrator.Kv1X = particles.accelerationX;
+        RK4Integrator.Kv1Y = particles.accelerationY;
+        RK4Integrator.Kr1X = particles.velocityX;
+        RK4Integrator.Kr1Y = particles.velocityY;
+        RK4Integrator.UpdateVirtualPosition(particles, RK4Integrator.Kr1X, RK4Integrator.Kr1Y, dt/2);
+        
+
+        //K2
+        CalculateAccelerations(RK4Integrator.virtualX, RK4Integrator.virtualY, RK4Integrator.Kv2X, RK4Integrator.Kv2Y, particles.mass);
+        RK4Integrator.Kr2X = particles.velocityX + dt/2 * RK4Integrator.Kv1X;
+        RK4Integrator.Kr2Y = particles.velocityY + dt/2 * RK4Integrator.Kv1Y;
+        RK4Integrator.UpdateVirtualPosition(particles, RK4Integrator.Kr2X, RK4Integrator.Kr2Y, dt/2);
+
+
+        //K3
+        CalculateAccelerations(RK4Integrator.virtualX, RK4Integrator.virtualY, RK4Integrator.Kv3X, RK4Integrator.Kv3Y, particles.mass);
+        RK4Integrator.Kr3X = particles.velocityX + dt/2 * RK4Integrator.Kv2X;
+        RK4Integrator.Kr3Y = particles.velocityY + dt/2 * RK4Integrator.Kv2Y;
+        RK4Integrator.UpdateVirtualPosition(particles, RK4Integrator.Kr3X, RK4Integrator.Kr3Y, dt);
+
+        //K4
+        CalculateAccelerations(RK4Integrator.virtualX, RK4Integrator.virtualY, RK4Integrator.Kv4X, RK4Integrator.Kv4Y, particles.mass);
+        RK4Integrator.Kr4X = particles.velocityX + dt * RK4Integrator.Kv3X;
+        RK4Integrator.Kr4Y = particles.velocityY + dt * RK4Integrator.Kv3Y;
+
         RK4Integrator.Update(particles, dt);
+
         particles.Draw();
         break;
+
     }
 }
 

@@ -18,13 +18,13 @@ void BarnesHut::InitialiseParticles()
     switch(particleConfigNumber) //Initalise Particle Configuration
     {
     case 1:
-        particles.Galaxy();
+        particles.SingleStar();
         break;
     case 2:
-        particles.BinaryGalaxy();
+        particles.BinaryStar();
         break;
     case 3:
-        particles.Triangle();
+        particles.Galaxy();
         break;
     }
 
@@ -33,6 +33,7 @@ void BarnesHut::InitialiseParticles()
         case 1:
             break;
         case 2:
+            calculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
             VerletIntegrator.Initiate(particles);
             break;
         case 3:
@@ -40,16 +41,16 @@ void BarnesHut::InitialiseParticles()
     }
 }
 
-void BarnesHut::calculateAccelerations()
+void BarnesHut::calculateAccelerations(Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass)
 {
-    particles.accelerationX.setZero();
-    particles.accelerationY.setZero();
+    accelerationX.setZero();
+    accelerationY.setZero();
 
     quadtree.buildTree(particles, 450, 450);
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(int particleIndex = 0; particleIndex < particleCount; particleIndex++)
     {
-        calculateAcceleration(0, particleIndex);
+        calculateAcceleration(0, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
     }
 }
 
@@ -58,16 +59,50 @@ void BarnesHut::Update()
     switch(integratorNumber)
     {
         case 1:
-            calculateAccelerations();
+            calculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
             EulerIntegrator.Update(particles, dt);
             break;
 
         case 2:
-            calculateAccelerations();
-            VerletIntegrator.Update(particles, dt);
+            particles.accelerationX = VerletIntegrator.nextAccelerationX;
+            particles.accelerationY = VerletIntegrator.nextAccelerationY;
+            particles.X = particles.X + particles.velocityX*dt + dt*dt *0.5*particles.accelerationX;
+            particles.Y = particles.Y + particles.velocityY*dt + dt*dt *0.5*particles.accelerationY;
+            calculateAccelerations(particles.X, particles.Y, VerletIntegrator.nextAccelerationX, VerletIntegrator.nextAccelerationY, particles.mass);
+            particles.velocityX = particles.velocityX + 0.5 * (particles.accelerationX + VerletIntegrator.nextAccelerationX)*dt;
+            particles.velocityY = particles.velocityY + 0.5 * (particles.accelerationY + VerletIntegrator.nextAccelerationY)*dt;  
             break;
 
         case 3:
+
+            calculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
+
+            //K1
+            RK4Integrator.Kv1X = particles.accelerationX;
+            RK4Integrator.Kv1Y = particles.accelerationY;
+            RK4Integrator.Kr1X = particles.velocityX;
+            RK4Integrator.Kr1Y = particles.velocityY;
+            RK4Integrator.UpdateVirtualPosition(particles, RK4Integrator.Kr1X, RK4Integrator.Kr1Y, dt/2);
+            
+
+            //K2
+            calculateAccelerations(RK4Integrator.virtualX, RK4Integrator.virtualY, RK4Integrator.Kv2X, RK4Integrator.Kv2Y, particles.mass);
+            RK4Integrator.Kr2X = particles.velocityX + dt/2 * RK4Integrator.Kv1X;
+            RK4Integrator.Kr2Y = particles.velocityY + dt/2 * RK4Integrator.Kv1Y;
+            RK4Integrator.UpdateVirtualPosition(particles, RK4Integrator.Kr2X, RK4Integrator.Kr2Y, dt/2);
+
+
+            //K3
+            calculateAccelerations(RK4Integrator.virtualX, RK4Integrator.virtualY, RK4Integrator.Kv3X, RK4Integrator.Kv3Y, particles.mass);
+            RK4Integrator.Kr3X = particles.velocityX + dt/2 * RK4Integrator.Kv2X;
+            RK4Integrator.Kr3Y = particles.velocityY + dt/2 * RK4Integrator.Kv2Y;
+            RK4Integrator.UpdateVirtualPosition(particles, RK4Integrator.Kr3X, RK4Integrator.Kr3Y, dt);
+
+            //K4
+            calculateAccelerations(RK4Integrator.virtualX, RK4Integrator.virtualY, RK4Integrator.Kv4X, RK4Integrator.Kv4Y, particles.mass);
+            RK4Integrator.Kr4X = particles.velocityX + dt * RK4Integrator.Kv3X;
+            RK4Integrator.Kr4Y = particles.velocityY + dt * RK4Integrator.Kv3Y;
+
             RK4Integrator.Update(particles, dt);
             break;
     }
@@ -77,7 +112,7 @@ void BarnesHut::Update()
 
 
 
-void BarnesHut::calculateAcceleration(int nodeIndex, int particleIndex)
+void BarnesHut::calculateAcceleration(int nodeIndex, int particleIndex, Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass)
 {
     //Node External
     if(quadtree.external(nodeIndex))
@@ -96,18 +131,18 @@ void BarnesHut::calculateAcceleration(int nodeIndex, int particleIndex)
                 return;
             }
 
-            double displacementX = particles.X[existingParticleIndex] - particles.X[particleIndex]; 
-            double displacementY = particles.Y[existingParticleIndex] - particles.Y[particleIndex];
+            double displacementX = positionX[existingParticleIndex] - positionX[particleIndex]; 
+            double displacementY = positionY[existingParticleIndex] - positionY[particleIndex];
 
             double distanceSquared = displacementX*displacementX + displacementY*displacementY;
             double denominator =  (distanceSquared + epsilonSquared);
-            double factor = G / sqrt(denominator*denominator*denominator) * particles.mass[existingParticleIndex];
+            double factor = G / sqrt(denominator*denominator*denominator) * mass[existingParticleIndex];
 
             double deltaAccelerationX = factor * displacementX;
             double deltaAccelerationY = factor * displacementY;
 
-            particles.accelerationX[particleIndex] += deltaAccelerationX;
-            particles.accelerationY[particleIndex] += deltaAccelerationY;
+            accelerationX[particleIndex] += deltaAccelerationX;
+            accelerationY[particleIndex] += deltaAccelerationY;
 
             return;
         }
@@ -115,18 +150,18 @@ void BarnesHut::calculateAcceleration(int nodeIndex, int particleIndex)
     //Node internal
     else
     {            
-        double displacementX = quadtree.nodes[nodeIndex].centreMassX - particles.X[particleIndex]; 
-        double displacementY = quadtree.nodes[nodeIndex].centreMassY - particles.Y[particleIndex];
+        double displacementX = quadtree.nodes[nodeIndex].centreMassX - positionX[particleIndex]; 
+        double displacementY = quadtree.nodes[nodeIndex].centreMassY - positionY[particleIndex];
 
         double distanceSquared = displacementX*displacementX + displacementY*displacementY; 
  
         if(distanceSquared == 0.0)
         {
             int childIndex = quadtree.nodes[nodeIndex].childFirstIndex;
-            calculateAcceleration(childIndex, particleIndex);
-            calculateAcceleration(childIndex+1, particleIndex);
-            calculateAcceleration(childIndex+2, particleIndex);
-            calculateAcceleration(childIndex+3, particleIndex);
+            calculateAcceleration(childIndex, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
+            calculateAcceleration(childIndex+1, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
+            calculateAcceleration(childIndex+2, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
+            calculateAcceleration(childIndex+3, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
             return;  
         }
 
@@ -142,17 +177,17 @@ void BarnesHut::calculateAcceleration(int nodeIndex, int particleIndex)
             double deltaAccelerationX = factor * displacementX;
             double deltaAccelerationY = factor * displacementY;
 
-            particles.accelerationX[particleIndex] += deltaAccelerationX;
-            particles.accelerationY[particleIndex] += deltaAccelerationY;
+            accelerationX[particleIndex] += deltaAccelerationX;
+            accelerationY[particleIndex] += deltaAccelerationY;
 
         }
         else 
         {
             int childIndex = quadtree.nodes[nodeIndex].childFirstIndex;
-            calculateAcceleration(childIndex, particleIndex);
-            calculateAcceleration(childIndex+1, particleIndex);
-            calculateAcceleration(childIndex+2, particleIndex);
-            calculateAcceleration(childIndex+3, particleIndex);
+            calculateAcceleration(childIndex, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
+            calculateAcceleration(childIndex+1, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
+            calculateAcceleration(childIndex+2, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
+            calculateAcceleration(childIndex+3, particleIndex, positionX, positionY, accelerationX, accelerationY, mass);
             return;
         }
     }

@@ -1,6 +1,6 @@
 #include "button.hpp"
 
-Button::Button(float x, float y, float width, float height, std::string text, Font font, Color buttonColour, bool integrator, bool startButton)
+Button::Button(float x, float y, float width, float height, std::string text, Font font, Color buttonColour, bool algorithmButton, bool integrator, bool startButton, bool particleConfigButton)
 {
     ButtonBounds = Rectangle{x, y, width, height};
     this->text = text;
@@ -8,6 +8,9 @@ Button::Button(float x, float y, float width, float height, std::string text, Fo
     this->buttonColour = buttonColour;
     this->integrator = integrator;
     this->startButton = startButton;
+    this->particleConfig = particleConfigButton;
+    this->algorithm = algorithmButton;
+    
 }
 
 void Button::Draw()
