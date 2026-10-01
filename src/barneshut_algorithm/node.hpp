@@ -6,6 +6,7 @@ public:
 
     int particleIndex = -1;
     int childFirstIndex = -1;
+    
     double centreMassX = 0;
     double centreMassY = 0;
 
@@ -15,4 +16,6 @@ public:
 
     double squareCenterX;
     double squareCenterY;
+
+    void PrintData();
 };
