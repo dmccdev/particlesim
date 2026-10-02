@@ -32,14 +32,14 @@ void Pairwise::InitialiseParticles()
 
     switch(integratorNumber) //Initialise Integrator
     {
-        case 1:
-            break;
-        case 2:
-            CalculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
-            VerletIntegrator.Initiate(particles);
-            break;
-        case 3:
-            break;
+    case 1:
+        break;
+    case 2:
+        CalculateAccelerations(particles.X, particles.Y, particles.accelerationX, particles.accelerationY, particles.mass);
+        VerletIntegrator.Initiate(particles);
+        break;
+    case 3:
+        break;
     }
 }
 
@@ -112,8 +112,11 @@ void Pairwise::CalculateAccelerations(Vec &positionX, Vec &positionY, Vec &accel
     int numberOfParticles = positionX.size();
     accelerationX.setZero();
     accelerationY.setZero();
-    
+
+    #ifdef USE_OPENMP
     #pragma omp parallel for
+    #endif
+
     for(int i = 0;  i < numberOfParticles; i++)
     {
         for(int j = i + 1; j < numberOfParticles; j++)

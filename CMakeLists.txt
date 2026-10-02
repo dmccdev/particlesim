@@ -1,33 +1,59 @@
 cmake_minimum_required(VERSION 3.20)
 
-# Your project folder is named particlesim
 project(particlesim LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Tell CMake where Raylib is
-add_subdirectory(C:/raylib/raylib raylib)
+# --------------------------------------------------
+# Raylib
+# Download and build Raylib automatically
+# --------------------------------------------------
 
-# Create your executable target
+include(FetchContent)
+
+FetchContent_Declare(
+    raylib
+    GIT_REPOSITORY https://github.com/raysan5/raylib.git
+    GIT_TAG 5.5
+)
+
+FetchContent_MakeAvailable(raylib)
+
+# --------------------------------------------------
+# Executable
+# --------------------------------------------------
 
 add_executable(particlesim
+
     src/main.cpp
+
+    #Font File
     src/calibri.ttf
+
+    # User interface
     src/userinterface/ui.hpp
     src/userinterface/ui.cpp
     src/userinterface/button.cpp
     src/userinterface/button.hpp
+
+    # Pairwise algorithm
     src/pairwise_algorithm/pairwise.hpp
     src/pairwise_algorithm/pairwise.cpp
+
+    # Particle state
     src/particlestate/ParticlesState.hpp
     src/particlestate/ParticlesState.cpp
+
+    # Barnes-Hut algorithm
     src/barneshut_algorithm/barneshut.hpp
     src/barneshut_algorithm/barneshut.cpp
     src/barneshut_algorithm/node.hpp
     src/barneshut_algorithm/node.cpp
     src/barneshut_algorithm/quadtree.cpp
     src/barneshut_algorithm/quadtree.hpp
+
+    # Integrators
     src/integrator/Verlet.cpp
     src/integrator/Verlet.hpp
     src/integrator/RK4.cpp
@@ -36,26 +62,49 @@ add_executable(particlesim
     src/integrator/Euler.hpp
 )
 
-    # Tell CMake to search inside the 'third_party' folder of this project
-target_include_directories(particlesim PRIVATE 
+# --------------------------------------------------
+# Include directories
+# --------------------------------------------------
+
+target_include_directories(particlesim PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
-    ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
-# Copy the font file to the build directory automatically
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/calibri.ttf"
-     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/src")
+# --------------------------------------------------
+# Copy font to build directory
+# --------------------------------------------------
 
+file(
+    COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/calibri.ttf"
+    DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/src"
+)
 
-# Link Raylib to your program
+# --------------------------------------------------
+# Raylib
+# --------------------------------------------------
+
 target_link_libraries(particlesim PRIVATE raylib)
 
-# Find the OpenMP package on your system
-find_package(OpenMP REQUIRED)
+# --------------------------------------------------
+# OpenMP
+# --------------------------------------------------
 
-# Link OpenMP to your specific executable target
+# OpenMP is optional.
+# The simulation will still build without it.
+
+find_package(OpenMP)
+
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(particlesim PRIVATE OpenMP::OpenMP_CXX)
+
+    target_link_libraries(
+        particlesim
+        PRIVATE OpenMP::OpenMP_CXX
+    )
+
+    target_compile_definitions(
+        particlesim
+        PRIVATE USE_OPENMP
+    )
+
 endif()
-
-
-
