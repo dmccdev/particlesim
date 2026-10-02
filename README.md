@@ -1,7 +1,7 @@
 # N-Body Particle Simulation
 
 <p align="center">
-  <img src="src/assets/galaxy.png" width="700">
+  <img src="src/assets/Galaxy.png" width="700">
 </p>
 
 <p align="center">
@@ -54,7 +54,7 @@ The application also includes an interactive interface for switching between alg
 A central massive body is surrounded by particles with initial tangential velocities, producing an orbiting galaxy-like structure.
 
 <p align="center">
-  <img src="src/assets/galaxy.png" width="650">
+  <img src="src/assets/Galaxy.png" width="650" alt="Galaxy particle configuration">
 </p>
 
 ---
@@ -64,7 +64,7 @@ A central massive body is surrounded by particles with initial tangential veloci
 Two massive bodies orbit their common centre of mass while surrounding particles respond to their combined gravitational field.
 
 <p align="center">
-  <img src="src/assets/binary-star.png" width="650">
+  <img src="src/assets/BinaryStarSystem.png" width="650" alt="Binary star system particle configuration">
 </p>
 
 ---
@@ -76,7 +76,7 @@ A massive central body is surrounded by particles with tangential orbital veloci
 Particles closer to the centre have higher initial orbital velocities, producing a dense rotating particle system.
 
 <p align="center">
-  <img src="src/assets/singlestar.png" width="650">
+  <img src="src/assets/StarSystem.png" width="650" alt="Single star system particle configuration">
 </p>
 
 ---
@@ -201,10 +201,10 @@ particlesim/
 │   ├── calibri.ttf
 │   │
 │   ├── assets/
-│   │   ├── galaxy.png
-│   │   ├── Galaxy.gif
-│   │   ├── binary-star.png
-│   │   └── singlestar.png
+│   │   ├── Galaxy.png
+│   │   ├── BinaryStarSystem.png
+│   │   ├── StarSystem.png
+│   │   └── Galaxy.gif
 │   │
 │   ├── userinterface/
 │   │   ├── ui.hpp
