@@ -1,7 +1,7 @@
 # N-Body Particle Simulation
 
 <p align="center">
-  <img src="src/assets/Galaxy.png" width="700">
+  <img src="src/assets/Galaxy.gif" width="700">
 </p>
 
 <p align="center">
@@ -25,9 +25,7 @@ The simulation implements two different approaches to calculating gravitational 
 
 The application also includes an interactive interface for switching between algorithms, integrators and particle configurations.
 
-<p align="center">
-  <img src="src/assets/Galaxy.gif" width="600" alt="N-body particle simulation">
-</p>
+
 
 ---
 
