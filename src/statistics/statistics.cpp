@@ -49,7 +49,7 @@ void Statistics::calculateStatistics(ParticlesState &particles)
             double distanceSquared = displacementX*displacementX + displacementY*displacementY;
             if(distanceSquared > 0)
             {
-                totalPotentialEnergy -= G * particles.mass[i] * particles.mass[j] / sqrt(distanceSquared + epsilonSquared);
+                totalPotentialEnergy -= G * particles.mass[i] * particles.mass[j] / std::sqrt(distanceSquared + epsilonSquared);
             }
         }
     }   
@@ -60,10 +60,10 @@ void Statistics::calculateStatistics(ParticlesState &particles)
     energyError = std::abs((totalEnergy - initialTotalEnergy) / initialTotalEnergy) * 100;
     
 
-    linearMomentumErrorX = abs(linearMomentumX - initialLinearMomentumX);
-    linearMomentumErrorY = abs(linearMomentumY - initialLinearMomentumY);
+    linearMomentumErrorX = std::abs(linearMomentumX - initialLinearMomentumX);
+    linearMomentumErrorY = std::abs(linearMomentumY - initialLinearMomentumY);
 
-    angularMomentumError = abs(angularMomentum - initialAngularMomentum);
+    angularMomentumError = std::abs(angularMomentum - initialAngularMomentum);
 }
 
 void Statistics::updateStatistics(ParticlesState &particles, int &frameCounter)
@@ -111,7 +111,7 @@ void Statistics::calculateInitialStatistics(ParticlesState &particles)
             double distanceSquared = displacementX*displacementX + displacementY*displacementY;
             if(distanceSquared > 0)
             {
-                initialTotalPotentialEnergy -= G * particles.mass[i] * particles.mass[j] / sqrt(distanceSquared + epsilonSquared); 
+                initialTotalPotentialEnergy -= G * particles.mass[i] * particles.mass[j] / std::sqrt(distanceSquared + epsilonSquared); 
             }
         }
     }

@@ -152,7 +152,7 @@ std::array<double, 2> Pairwise::CalculateAcceleration(double displacementX, doub
 {
     double distanceSquared = displacementX*displacementX + displacementY*displacementY;
     double denominator =  (distanceSquared + epsilonSquared);
-    double factor = G / sqrt(denominator*denominator*denominator);
+    double factor = G / std::sqrt(denominator*denominator*denominator);
     double deltaAccelerationX = factor * displacementX;
     double deltaAccelerationY = factor * displacementY;
 

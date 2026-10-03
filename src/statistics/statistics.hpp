@@ -42,9 +42,7 @@ double initialAngularMomentum;
 
 Statistics(double dt, double G, double frameCalculationInterval, double epsilon);
 
-
 void calculateStatistics(ParticlesState &particles);
 void updateStatistics(ParticlesState &particles, int &frameCounter);
-
 void calculateInitialStatistics(ParticlesState &particles);
 };

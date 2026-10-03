@@ -143,7 +143,7 @@ void BarnesHut::calculateAcceleration(int nodeIndex, int particleIndex, Vec &pos
 
             double distanceSquared = displacementX*displacementX + displacementY*displacementY;
             double denominator =  (distanceSquared + epsilonSquared);
-            double factor = G / sqrt(denominator*denominator*denominator) * mass[existingParticleIndex];
+            double factor = G / std::sqrt(denominator*denominator*denominator) * mass[existingParticleIndex];
 
             double deltaAccelerationX = factor * displacementX;
             double deltaAccelerationY = factor * displacementY;

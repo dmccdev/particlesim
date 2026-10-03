@@ -29,7 +29,7 @@ particlesCount(particlesCount)
             float dx = (x + 0.5f - textureSize * 0.5f) / (textureSize * 0.5f);
             float dy = (y + 0.5f - textureSize * 0.5f) / (textureSize * 0.5f);
             float radiusSquared = dx * dx + dy * dy;
-            int alpha = static_cast<unsigned char>(255.0f * std::exp(-5.0f * radiusSquared));
+            unsigned char alpha = static_cast<unsigned char>(255.0f * std::exp(-5.0f * radiusSquared));
             pixels[y * textureSize + x] = Color{255, 255, 255, alpha};
         }
     }
@@ -70,8 +70,10 @@ void ParticlesState::SingleStar()
     std::random_device rd;
     std::mt19937 generator64(rd());
 
-    std::uniform_real_distribution<double> distributionRadius(50, 100);
+    std::uniform_real_distribution<double> distributionRadius(100, 200);
     std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
+    std::uniform_real_distribution<double> distributionPerturbation(-30, 30);
+
 
     //Initialise Center Mass
     X[0] = 450.0;
@@ -85,6 +87,8 @@ void ParticlesState::SingleStar()
         //Position
         double radius = distributionRadius(generator64);
         double theta = distributionTheta(generator64);
+        double randomSpeedPerturbation = distributionPerturbation(generator64);
+
 
         X[i] = X[0] + radius * std::cos(theta);
         Y[i] = Y[0] + radius * std::sin(theta);
@@ -97,7 +101,7 @@ void ParticlesState::SingleStar()
         double speed = std::sqrt(G * mass[0] / distance);
 
         double tangentialVelocityX = -displacementY/distance * speed;
-        double tangentialVelocityY = displacementX/distance * speed;
+        double tangentialVelocityY = displacementX/distance * speed + randomSpeedPerturbation;
 
         velocityX[i] = tangentialVelocityX;
         velocityY[i] = tangentialVelocityY;
@@ -113,6 +117,8 @@ void ParticlesState::BinaryStar()
 
     std::uniform_real_distribution<double> distributionRadius(150, 300);
     std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
+    std::uniform_real_distribution<double> distributionPerturbation(-30, 30);
+
 
     //Initialise Central Masses
     X[0] = 480.0;
@@ -144,6 +150,7 @@ void ParticlesState::BinaryStar()
         //Position
         double radius = distributionRadius(generator64);
         double theta = distributionTheta(generator64);
+        double randomSpeedPerturbation = distributionPerturbation(generator64);
 
         X[i] = centerMassX + radius * std::cos(theta);
         Y[i] = centerMassY + radius * std::sin(theta);
@@ -155,7 +162,7 @@ void ParticlesState::BinaryStar()
         double distance = std::sqrt(displacementX*displacementX + displacementY*displacementY);
         double speed = std::sqrt(G * centerMassMass / distance);
 
-        double tangentialVelocityX = -displacementY/distance * speed;
+        double tangentialVelocityX = -displacementY/distance * speed + randomSpeedPerturbation;
         double tangentialVelocityY = displacementX/distance * speed;
 
         velocityX[i] = tangentialVelocityX;
