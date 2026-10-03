@@ -5,10 +5,9 @@
 class Button
 {
 public:
-Button(float x, float y, float width, float height, std::string text, Font font, Color buttonColour,bool algorithmButton, bool integratorButton, bool startButton, bool particleConfigButton);
+Button(float x, float y, float width, float height, std::string text, Color buttonColour,bool algorithmButton, bool integratorButton, bool startButton, bool particleConfigButton);
 Rectangle ButtonBounds;
 std::string text;
-Font font;
 Color buttonColour;
 bool buttonPressed = false;
 bool particleConfig;

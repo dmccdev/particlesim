@@ -1,17 +1,14 @@
 #include "statistics.hpp"
+#include <iostream>
+#include <cmath>
 
-Statistics::Statistics(double dt, double G, double frameCalculationInterval)
+Statistics::Statistics(double dt, double G, double frameCalculationInterval, double epsilon)
 {
     this->dt = dt;
     this->G = G;
     this->frameCalculationInterval = frameCalculationInterval;
-
-    initialAngularMomentum = 0.0;
-    initialLinearMomentumX = 0.0;
-    initialLinearMomentumY = 0.0;
-    initialTotalEnergy = 0.0;
-    initialTotalKineticEnergy = 0.0;
-    initialTotalPotentialEnergy = 0.0;
+    this->epsilon = epsilon;
+    this->epsilonSquared = epsilon*epsilon;
 }
 
 void Statistics::calculateStatistics(ParticlesState &particles)
@@ -23,13 +20,14 @@ void Statistics::calculateStatistics(ParticlesState &particles)
     totalEnergy = 0.0;
     totalKineticEnergy = 0.0;
     totalPotentialEnergy = 0.0;
+    energyError = 0;
 
     //Calculate Linear Momentum, Angular Momentum & Total Kinetic Energy
     #ifdef USE_OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for reduction(+:linearMomentumX,linearMomentumY,angularMomentum,totalKineticEnergy)
     #endif
 
-    for(int i = 0; i < numberOfParticles; i++)
+    for(int i = 0; i < particles.particlesCount; i++)
     {
         linearMomentumX += particles.mass[i] * particles.velocityX[i];
         linearMomentumY += particles.mass[i] * particles.velocityY[i];
@@ -41,31 +39,26 @@ void Statistics::calculateStatistics(ParticlesState &particles)
 
 
     //Calculating Potential Energy
-    #ifdef USE_OPENMP
-    #pragma omp parallel for
-    #endif
-
-    for(int i = 0;  i < numberOfParticles; i++)
+    for(int i = 0;  i < particles.particlesCount; i++)
     {
-        for(int j = i + 1; j < numberOfParticles; j++)
+        for(int j = i + 1; j < particles.particlesCount; j++)
         {   
             double displacementX = particles.X[j] - particles.X[i];
             double displacementY = particles.Y[j] - particles.Y[i];
 
-            double distance = sqrtf(displacementX*displacementX + displacementY*displacementY);
-            if(distance > 0)
+            double distanceSquared = displacementX*displacementX + displacementY*displacementY;
+            if(distanceSquared > 0)
             {
-                totalPotentialEnergy += -1 * G * particles.mass[i] * particles.mass[j] / distance;
+                totalPotentialEnergy -= G * particles.mass[i] * particles.mass[j] / sqrt(distanceSquared + epsilonSquared);
             }
         }
-    }
+    }   
 
     //Calculating Total Energy
     totalEnergy = totalKineticEnergy + totalPotentialEnergy;
-    if(initialTotalEnergy > 0)
-    {
-        energyError = abs(totalEnergy - initialTotalEnergy) / abs(initialTotalEnergy) * 100;
-    }
+    //Calculating Energy Error
+    energyError = std::abs((totalEnergy - initialTotalEnergy) / initialTotalEnergy) * 100;
+    
 
     linearMomentumErrorX = abs(linearMomentumX - initialLinearMomentumX);
     linearMomentumErrorY = abs(linearMomentumY - initialLinearMomentumY);
@@ -84,13 +77,19 @@ void Statistics::updateStatistics(ParticlesState &particles, int &frameCounter)
 
 void Statistics::calculateInitialStatistics(ParticlesState &particles)
 {
+    initialLinearMomentumX = 0.0;
+    initialLinearMomentumY = 0.0;
+    initialAngularMomentum = 0.0;
+    initialTotalKineticEnergy = 0.0;
+    initialTotalPotentialEnergy = 0.0;
+    initialTotalEnergy = 0.0;
 
     //Calculating Inital Linear Momentum, Initial Angular Energy & Initial Total Kinetic Energy
     #ifdef USE_OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for reduction(+:initialLinearMomentumX,initialLinearMomentumY,initialAngularMomentum,initialTotalKineticEnergy)
     #endif
-    
-    for(int i = 0; i < numberOfParticles; i++)
+
+    for(int i = 0; i < particles.particlesCount; i++)
     {
         initialLinearMomentumX += particles.mass[i] * particles.velocityX[i];
         initialLinearMomentumY += particles.mass[i] * particles.velocityY[i];
@@ -102,25 +101,20 @@ void Statistics::calculateInitialStatistics(ParticlesState &particles)
 
 
     //Calculating Initial Potential Energy
-    #ifdef USE_OPENMP
-    #pragma omp parallel for
-    #endif
-
-    for(int i = 0;  i < numberOfParticles; i++)
+    for(int i = 0;  i < particles.particlesCount; i++)
     {
-        for(int j = i + 1; j < numberOfParticles; j++)
+        for(int j = i + 1; j < particles.particlesCount; j++)
         {   
             double displacementX = particles.X[j] - particles.X[i];
             double displacementY = particles.Y[j] - particles.Y[i];
 
-            double distance = sqrtf(displacementX*displacementX + displacementY*displacementY);
-            if(distance > 0)
+            double distanceSquared = displacementX*displacementX + displacementY*displacementY;
+            if(distanceSquared > 0)
             {
-                initialTotalPotentialEnergy += -1 * G * particles.mass[i] * particles.mass[j] / distance; 
+                initialTotalPotentialEnergy -= G * particles.mass[i] * particles.mass[j] / sqrt(distanceSquared + epsilonSquared); 
             }
         }
     }
-
     //Calculating Initial Total Energy
     initialTotalEnergy = initialTotalPotentialEnergy + initialTotalKineticEnergy;
 }

@@ -30,14 +30,17 @@ add_executable(particlesim
 
     #Font File
     src/calibri.ttf
+    src/inter.ttf
 
     # User interface
     src/userinterface/ui.hpp
     src/userinterface/ui.cpp
     src/userinterface/button.cpp
     src/userinterface/button.hpp
-    src/userinterface/statistics.cpp
-    src/userinterface/statistics.hpp
+
+    # Statistics
+    src/statistics/statistics.cpp
+    src/statistics/statistics.hpp
     
     # Pairwise algorithm
     src/pairwise_algorithm/pairwise.hpp
@@ -78,7 +81,7 @@ target_include_directories(particlesim PRIVATE
 # --------------------------------------------------
 
 file(
-    COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/calibri.ttf"
+    COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/inter.ttf"
     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/src"
 )
 

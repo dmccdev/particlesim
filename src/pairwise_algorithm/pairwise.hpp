@@ -4,6 +4,7 @@
 #include "integrator/Euler.hpp"
 #include "integrator/Verlet.hpp"
 #include "integrator/RK4.hpp"
+#include "statistics/statistics.hpp"
 
 
 
@@ -15,6 +16,7 @@ public:
     Euler EulerIntegrator;
     Verlet VerletIntegrator;
     RK4 RK4Integrator;
+    Statistics Stats;
 
     ParticlesState particles;
     Pairwise(int particlesCount, int integratorNumber, int particleConfigNumber, double dt);
@@ -27,8 +29,12 @@ public:
     int particlesCount;
     int integratorNumber;
     int particleConfigNumber;
+    int frameCounter = 0;
+
     double dt;
     double G = 1.0;
+    double epsilon = 0.5;
+    double epsilonSquared = epsilon*epsilon;
 
 
 };

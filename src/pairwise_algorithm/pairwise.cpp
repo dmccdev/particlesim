@@ -3,6 +3,7 @@
 #include "integrator/Euler.hpp"
 #include "integrator/Verlet.hpp"
 #include "integrator/RK4.hpp"
+#include <iostream>
 
 
 Pairwise::Pairwise(int particlesCount, int integratorNumber, int particleConfigNumber, double dt):
@@ -11,8 +12,12 @@ integratorNumber(integratorNumber),
 particleConfigNumber(particleConfigNumber),
 particles(particlesCount),
 RK4Integrator(particlesCount),
-dt(dt)
+dt(dt),
+Stats(dt, 1.0, 300, epsilon)
 {
+std::cout << "Pairwise G: " << G << std::endl;
+std::cout << "Stats G: " << Stats.G << std::endl;
+
 }
 
 void Pairwise::InitialiseParticles()
@@ -21,12 +26,15 @@ void Pairwise::InitialiseParticles()
     {
     case 1:
         particles.SingleStar();
+        Stats.calculateInitialStatistics(particles);
         break;
     case 2:
         particles.BinaryStar();
+        Stats.calculateInitialStatistics(particles);
         break;
     case 3:
         particles.Galaxy();
+        Stats.calculateInitialStatistics(particles);
         break;
     }
 
@@ -45,6 +53,7 @@ void Pairwise::InitialiseParticles()
 
 void Pairwise::Update()
 {
+    frameCounter++;
     switch(integratorNumber)
     {
     case 1: //Euler
@@ -101,8 +110,8 @@ void Pairwise::Update()
 
         particles.Draw();
         break;
-
     }
+    Stats.updateStatistics(particles ,frameCounter);
 }
 
 
@@ -142,8 +151,7 @@ std::array<double, 2> Pairwise::CalculateAcceleration(double displacementX, doub
 
 {
     double distanceSquared = displacementX*displacementX + displacementY*displacementY;
-    double epsilon = 0.5;
-    double denominator =  (distanceSquared + epsilon*epsilon);
+    double denominator =  (distanceSquared + epsilonSquared);
     double factor = G / sqrt(denominator*denominator*denominator);
     double deltaAccelerationX = factor * displacementX;
     double deltaAccelerationY = factor * displacementY;

@@ -8,11 +8,12 @@ class Statistics
 {
 public:
 int frame_rate;
-int numberOfParticles;
 double frameCalculationInterval;
 
 double dt;
 double G;
+double epsilon;
+double epsilonSquared;
 
 double totalEnergy;
 double energyError;
@@ -39,7 +40,8 @@ double initialLinearMomentumY;
 double initialAngularMomentum;
 
 
-Statistics(double dt, double G, double frameCalculationInterval);
+Statistics(double dt, double G, double frameCalculationInterval, double epsilon);
+
 
 void calculateStatistics(ParticlesState &particles);
 void updateStatistics(ParticlesState &particles, int &frameCounter);

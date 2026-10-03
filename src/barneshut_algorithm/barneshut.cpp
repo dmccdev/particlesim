@@ -8,7 +8,8 @@ particleConfigNumber(particleConfigNumber),
 integratorNumber(integratorNumber),
 RK4Integrator(particleCount),
 particleCount(particleCount),
-dt(dt)
+dt(dt),
+Stats(dt, G, 300, epsilon)
 
 {
 }
@@ -19,12 +20,15 @@ void BarnesHut::InitialiseParticles()
     {
     case 1:
         particles.SingleStar();
+        Stats.calculateInitialStatistics(particles);
         break;
     case 2:
         particles.BinaryStar();
+        Stats.calculateInitialStatistics(particles);
         break;
     case 3:
         particles.Galaxy();
+        Stats.calculateInitialStatistics(particles);
         break;
     }
 
@@ -58,6 +62,7 @@ void BarnesHut::calculateAccelerations(Vec &positionX, Vec &positionY, Vec &acce
 
 void BarnesHut::Update()
 {
+    frameCounter++;
     switch(integratorNumber)
     {
         case 1:
@@ -108,7 +113,7 @@ void BarnesHut::Update()
             RK4Integrator.Update(particles, dt);
             break;
     }
-
+    Stats.updateStatistics(particles ,frameCounter);
     particles.Draw();
 }
 

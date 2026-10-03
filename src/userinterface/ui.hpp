@@ -1,11 +1,12 @@
 #pragma once
 #include <raylib.h>
 #include "button.hpp"
-#include "statistics.hpp"
+#include "statistics/statistics.hpp"
 
 class UserInterface
 {
 public:
+    Font font;
     Button BarnesHutButton;
     Button PairwiseButton;
 
@@ -16,8 +17,6 @@ public:
     Button GalaxyButton;
     Button SingleStarButton;
     Button BinaryStarButton;
-
-    Statistics Stats;
 
     bool simulationStart;
 
@@ -32,7 +31,7 @@ public:
     void SetActiveAlgorithm(Button &button);
     void SimulationBegin();
 
-    void DrawStatistics();
+    void DrawStatistics(Statistics &Stats);
 
 private:
 };

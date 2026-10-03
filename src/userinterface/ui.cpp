@@ -3,20 +3,20 @@
 #include <iostream>
 
 UserInterface::UserInterface(Font font, double dt, double G) :
-    BarnesHutButton(50, 100, 375, 150, "BARNESHUT", font, RED, true, false, false, false),
-    PairwiseButton(475, 100, 375, 150, "PAIRWISE", font, RED, true, false, false, false),
+    BarnesHutButton(50, 100, 375, 150, "BARNESHUT", RED, true, false, false, false),
+    PairwiseButton(475, 100, 375, 150, "PAIRWISE", RED, true, false, false, false),
 
-    EulerButton(75, 325, 200, 150, "EULER", font, RED, false, true, false, false),
-    VerletButton(350, 325, 200, 150, "VERLET", font, RED, false, true, false, false),
-    RK4Button(625, 325, 200, 150, "RK4", font, RED, false, true, false, false),
+    EulerButton(75, 325, 200, 150, "EULER", RED, false, true, false, false),
+    VerletButton(350, 325, 200, 150, "VERLET", RED, false, true, false, false),
+    RK4Button(625, 325, 200, 150, "RK4", RED, false, true, false, false),
 
-    GalaxyButton(75, 540, 200, 150, "GALAXY", font, RED, false, false, false, true),
-    SingleStarButton(350, 540, 200, 150, "SINGLE STAR", font, RED, false, false, false, true),
-    BinaryStarButton(625, 540, 200, 150, "BINARY STAR", font, RED, false, false, false, true),
+    GalaxyButton(75, 540, 200, 150, "GALAXY", RED, false, false, false, true),
+    SingleStarButton(350, 540, 200, 150, "SINGLE STAR", RED, false, false, false, true),
+    BinaryStarButton(625, 540, 200, 150, "BINARY STAR", RED, false, false, false, true),
 
-    StartButton(250, 750, 400, 100, "START", font, RED, false, false, true, false),
-    Stats(dt, G, 300),
-    simulationStart(false)
+    StartButton(250, 750, 400, 100, "START", RED, false, false, true, false),
+    simulationStart(false),
+    font(font)
 {
 }
 
@@ -146,54 +146,35 @@ void UserInterface::SimulationBegin()
     }
 }
 
-void UserInterface::DrawStatistics()
+void UserInterface::DrawStatistics(Statistics &Stats)
 {
     int panelX = 900;
     int panelWidth = 300;
     int panelHeight = 900;
 
-    //Background
-
     DrawRectangle(panelX, 0, panelWidth, panelHeight, DARKGRAY);
 
-    //Title
+    DrawTextEx(font, "STATISTICS", { panelX + 20.0f, 25.0f }, 24.0f, 1.0f, WHITE);
 
-    DrawText("STATISTICS", panelX + 75, 25, 25, WHITE);
+    // Energy
+    DrawTextEx(font, "ENERGY", { panelX + 20.0f, 90.0f }, 18.0f, 1.0f, WHITE);
+    DrawLine(panelX + 20, 118, panelX + 280, 118, GRAY);
 
-    //Performance Stats
+    DrawTextEx(font, TextFormat("Kinetic:  %.4e", Stats.totalKineticEnergy), { panelX + 20.0f, 140.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Potential: %.4e", Stats.totalPotentialEnergy), { panelX + 20.0f, 168.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Total:     %.4e", Stats.totalEnergy), { panelX + 20.0f, 196.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Initial:   %.4e", Stats.initialTotalEnergy), { panelX + 20.0f, 224.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Error:     %.4f%%", Stats.energyError), { panelX + 20.0f, 252.0f }, 16.0f, 1.0f, LIGHTGRAY);
 
-    DrawText("PERFORMANCE", panelX + 20, 80, 20, WHITE);
+    // Momentum
+    DrawTextEx(font, "MOMENTUM", { panelX + 20.0f, 315.0f }, 18.0f, 1.0f, WHITE);
+    DrawLine(panelX + 20, 343, panelX + 280, 343, GRAY);
 
-    DrawText(TextFormat("FPS: %d", Stats.frame_rate), panelX + 20, 115, 18, LIGHTGRAY);
-
-    DrawText(TextFormat("Particles: %d", Stats.numberOfParticles),panelX + 20, 145, 18, LIGHTGRAY);
-
-    //Energy
-
-    DrawText("ENERGY", panelX + 20, 200, 20, WHITE);
-    DrawText(TextFormat("Kinetic: %.4e", Stats.totalKineticEnergy),panelX + 20, 235, 17, LIGHTGRAY);
-    DrawText(TextFormat("Potential: %.4e", Stats.totalPotentialEnergy), panelX + 20, 265, 17, LIGHTGRAY);
-    DrawText(TextFormat("Total: %.4e", Stats.totalKineticEnergy + Stats.totalPotentialEnergy), panelX + 20, 295, 17, LIGHTGRAY);
-    DrawText(TextFormat("Energy Error: %.4f%%", Stats.energyError), panelX + 20, 325, 17, LIGHTGRAY);
-
-    //Linear Momentum 
-
-    DrawText("LINEAR MOMENTUM", panelX + 20, 380, 20, WHITE);
-    DrawText(TextFormat("Px: %.4e", Stats.linearMomentumX), panelX + 20, 415, 17, LIGHTGRAY);
-    DrawText(TextFormat("Py: %.4e", Stats.linearMomentumY), panelX + 20, 445, 17, LIGHTGRAY);
-    DrawText(TextFormat("Px Error: %.4e", Stats.linearMomentumErrorX), panelX + 20, 475, 17, LIGHTGRAY);
-    DrawText(TextFormat("Py Error: %.4e", Stats.linearMomentumErrorY), panelX + 20, 505, 17, LIGHTGRAY);
-
-    //Angular Momentum
-
-    DrawText("ANGULAR MOMENTUM", panelX + 20, 560, 20, WHITE);
-    DrawText(TextFormat("L: %.4e", Stats.angularMomentum), panelX + 20, 595, 17, LIGHTGRAY);
-    DrawText(TextFormat("L Error: %.4e", Stats.angularMomentumError), panelX + 20, 625, 17, LIGHTGRAY);
-
-    //Calculation Infomation
-
-    DrawText("UPDATE", panelX + 20, 680, 20, WHITE);
-    DrawText(TextFormat("Every %.0f frames", Stats.frameCalculationInterval), panelX + 20, 715, 17, LIGHTGRAY);
-    DrawText(TextFormat("dt: %.6f", Stats.dt), panelX + 20, 745, 17, LIGHTGRAY);
-    DrawText(TextFormat("G: %.6e", Stats.G),panelX + 20, 775, 17, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Px:         %.4e", Stats.linearMomentumX), { panelX + 20.0f, 365.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Py:         %.4e", Stats.linearMomentumY), { panelX + 20.0f, 393.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Initial Px: %.4e", Stats.initialLinearMomentumX), { panelX + 20.0f, 421.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Initial Py: %.4e", Stats.initialLinearMomentumY), { panelX + 20.0f, 449.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Px Error:   %.4e", Stats.linearMomentumErrorX), { panelX + 20.0f, 477.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawTextEx(font, TextFormat("Py Error:   %.4e", Stats.linearMomentumErrorY), { panelX + 20.0f, 505.0f }, 16.0f, 1.0f, LIGHTGRAY);
 }
+
