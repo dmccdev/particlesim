@@ -1,6 +1,7 @@
 #pragma once
 #include <raylib.h>
 #include "button.hpp"
+#include "statistics.hpp"
 
 class UserInterface
 {
@@ -16,9 +17,11 @@ public:
     Button SingleStarButton;
     Button BinaryStarButton;
 
+    Statistics Stats;
+
     bool simulationStart;
 
-    UserInterface(Font font);
+    UserInterface(Font font, double dt, double G);
 
     void Draw();
     void UpdateButtons(Vector2 mousePosition);
@@ -28,6 +31,8 @@ public:
     void SetActiveIntegrator(Button &button);
     void SetActiveAlgorithm(Button &button);
     void SimulationBegin();
+
+    void DrawStatistics();
 
 private:
 };

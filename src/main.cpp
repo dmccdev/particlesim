@@ -10,14 +10,16 @@ int main()
 {
     int integratorSelectionValue;
     int particleConfigSelectionValue;
-    InitWindow(900, 900, "particlesim2");
+    InitWindow(1200, 900, "particlesim2");
     SetTargetFPS(60);
     Font calibri = LoadFontEx("src/calibri.ttf", 30, NULL, 0);
+    double dt = 0.01;
+    int frameCounter = 0;
 
     std::unique_ptr<Pairwise> algorithm_pairwise = nullptr;
     std::unique_ptr<BarnesHut> algorithm_barneshut = nullptr;
 
-    UserInterface userinterface(GetFontDefault());
+    UserInterface userinterface(GetFontDefault(), dt, 1.0);
     while(WindowShouldClose() == false)
     {
         BeginDrawing();
@@ -59,13 +61,13 @@ int main()
                     //Selecting Algorithm for Initialisation
                     if(userinterface.BarnesHutButton.buttonPressed)
                     {
-                        algorithm_barneshut = std::make_unique<BarnesHut>(20000, integratorSelectionValue, particleConfigSelectionValue, 0.01);
+                        algorithm_barneshut = std::make_unique<BarnesHut>(20000, integratorSelectionValue, particleConfigSelectionValue, dt);
                         algorithm_barneshut->InitialiseParticles();
 
                     }
                     else if(userinterface.PairwiseButton.buttonPressed)
                     {
-                        algorithm_pairwise = std::make_unique<Pairwise>(4000, integratorSelectionValue, particleConfigSelectionValue, 0.01);
+                        algorithm_pairwise = std::make_unique<Pairwise>(4000, integratorSelectionValue, particleConfigSelectionValue, dt);
                         algorithm_pairwise->InitialiseParticles();
                     }
                 }
@@ -73,10 +75,16 @@ int main()
                 if(algorithm_barneshut)
                 {
                     algorithm_barneshut->Update();
+                    frameCounter++;
+                    userinterface.Stats.updateStatistics(algorithm_barneshut->particles, frameCounter);
+                    userinterface.DrawStatistics();
                 }
                 else if(algorithm_pairwise)
                 {
                     algorithm_pairwise->Update();
+                    frameCounter++;
+                    userinterface.Stats.updateStatistics(algorithm_pairwise->particles, frameCounter);
+                    userinterface.DrawStatistics();
                 }
                 
             }

@@ -36,7 +36,9 @@ add_executable(particlesim
     src/userinterface/ui.cpp
     src/userinterface/button.cpp
     src/userinterface/button.hpp
-
+    src/userinterface/statistics.cpp
+    src/userinterface/statistics.hpp
+    
     # Pairwise algorithm
     src/pairwise_algorithm/pairwise.hpp
     src/pairwise_algorithm/pairwise.cpp
