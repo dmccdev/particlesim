@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 #include <rlgl.h>
 #include <raymath.h>
@@ -17,10 +18,25 @@ mass(particlesCount), speedSquared(particlesCount),
 particlesCount(particlesCount)
 
 {
-    Image img = GenImageColor(16, 16, BLANK);
-    ImageDrawCircle(&img, 8, 8, 8, WHITE);
-    particleTexture = LoadTextureFromImage(img);
-    UnloadImage(img);
+    int textureSize = 32;
+    Image glowImage = GenImageColor(textureSize, textureSize, BLANK);
+    Color *pixels = static_cast<Color *>(glowImage.data);
+
+    for (int y = 0; y < textureSize; ++y)
+    {
+        for (int x = 0; x < textureSize; ++x)
+        {
+            float dx = (x + 0.5f - textureSize * 0.5f) / (textureSize * 0.5f);
+            float dy = (y + 0.5f - textureSize * 0.5f) / (textureSize * 0.5f);
+            float radiusSquared = dx * dx + dy * dy;
+            int alpha = static_cast<unsigned char>(255.0f * std::exp(-5.0f * radiusSquared));
+            pixels[y * textureSize + x] = Color{255, 255, 255, alpha};
+        }
+    }
+
+    particleTexture = LoadTextureFromImage(glowImage);
+    SetTextureFilter(particleTexture, TEXTURE_FILTER_BILINEAR);
+    UnloadImage(glowImage);
 }
 
 ParticlesState::~ParticlesState()
@@ -77,8 +93,8 @@ void ParticlesState::SingleStar()
         double displacementX = X[i] - X[0];
         double displacementY = Y[i] - Y[0];
 
-        double distance = sqrt(displacementX*displacementX + displacementY*displacementY);
-        double speed = sqrt(G * mass[0] / distance);
+        double distance = std::sqrt(displacementX*displacementX + displacementY*displacementY);
+        double speed = std::sqrt(G * mass[0] / distance);
 
         double tangentialVelocityX = -displacementY/distance * speed;
         double tangentialVelocityY = displacementX/distance * speed;
@@ -115,7 +131,7 @@ void ParticlesState::BinaryStar()
     //Calculating their velocities
     double distance = X[0] - X[1];
     double radius = distance/2;
-    double speed = sqrt(G * mass[0] /( 4 * radius));
+    double speed = std::sqrt(G * mass[0] /( 4 * radius));
 
     velocityX[0] = 0.0;
     velocityX[1] = 0.0;
@@ -136,8 +152,8 @@ void ParticlesState::BinaryStar()
         double displacementX = X[i] - centerMassX;
         double displacementY = Y[i] - centerMassY;
 
-        double distance = sqrt(displacementX*displacementX + displacementY*displacementY);
-        double speed = sqrt(G * centerMassMass / distance);
+        double distance = std::sqrt(displacementX*displacementX + displacementY*displacementY);
+        double speed = std::sqrt(G * centerMassMass / distance);
 
         double tangentialVelocityX = -displacementY/distance * speed;
         double tangentialVelocityY = displacementX/distance * speed;
@@ -191,25 +207,17 @@ void ParticlesState::Galaxy()
         double displacementX = X[i] - blackHoleX;
         double displacementY = Y[i] - blackHoleY;
 
-        double distanceSquared =
-            displacementX * displacementX +
-            displacementY * displacementY;
-
+        double distanceSquared = displacementX * displacementX + displacementY * displacementY;
         double distance = std::sqrt(distanceSquared);
 
         // Circular orbital velocity
-        double orbitalSpeed =
-            std::sqrt(G * blackHoleMass / distance);
+        double orbitalSpeed = std::sqrt(G * blackHoleMass / distance);
 
         orbitalSpeed *= velocityVariation(generator64);
 
         // Tangential velocity
-        velocityX[i] =
-            -displacementY / distance * orbitalSpeed;
-
-        velocityY[i] =
-             displacementX / distance * orbitalSpeed;
-
+        velocityX[i] = -displacementY / distance * orbitalSpeed;
+        velocityY[i] = displacementX / distance * orbitalSpeed;
         mass[i] = 1.0;
     }
 }
@@ -226,76 +234,69 @@ void ParticlesState::Draw()
     double maxSpeedSquared = speedSquared.maxCoeff();
 
     BeginBlendMode(BLEND_ADDITIVE);
-
+    rlSetTexture(particleTexture.id);
     rlBegin(RL_QUADS);
+
+    auto drawGlowQuad = [](float centerX, float centerY, float halfSize, Color tint)
+    {
+        rlColor4ub(tint.r, tint.g, tint.b, tint.a);
+        rlTexCoord2f(0.0f, 0.0f);
+        rlVertex2f(centerX - halfSize, centerY - halfSize);
+        rlTexCoord2f(0.0f, 1.0f);
+        rlVertex2f(centerX - halfSize, centerY + halfSize);
+        rlTexCoord2f(1.0f, 1.0f);
+        rlVertex2f(centerX + halfSize, centerY + halfSize);
+        rlTexCoord2f(1.0f, 0.0f);
+        rlVertex2f(centerX + halfSize, centerY - halfSize);
+    };
 
     for (int i = 0; i < particlesCount; i++)
     {
-        if (i % 2000 == 0)
+        if (i > 0 && i % 1000 == 0)
         {
             rlEnd();
+            rlSetTexture(particleTexture.id);
             rlBegin(RL_QUADS);
         }
 
-        Color c = GetColorWhiteToRed(speedSquared[i], maxSpeedSquared);
-
-        rlColor4ub(c.r, c.g, c.b, c.a);
-
+        Color color = GetParticleColor(speedSquared[i], maxSpeedSquared);
         float px = static_cast<float>(X[i]);
         float py = static_cast<float>(Y[i]);
 
-        rlVertex2f(px - 1.0f, py - 1.0f);
-        rlVertex2f(px - 1.0f, py + 1.0f);
-        rlVertex2f(px + 1.0f, py + 1.0f);
-        rlVertex2f(px + 1.0f, py - 1.0f);
+        Color halo = color;
+        halo.a = 155;
+        drawGlowQuad(px, py, 6.0f, halo);
+
+        Color core = ColorLerp(color, WHITE, 0.68f);
+        drawGlowQuad(px, py, 1.45f, core);
     }
 
     rlEnd();
-
+    rlSetTexture(0);
     EndBlendMode();
 }
 
 
-Color ParticlesState::GetColorWhiteToRed(
-    double speedSquared,
-    double maxSpeedSquared)
+Color ParticlesState::GetParticleColor(double speedSquared,double maxSpeedSquared)
 {
+    Color palette[] = {
+        {45, 105, 255, 255},
+        {0, 220, 255, 255},
+        {75, 255, 190, 255},
+        {210, 255, 90, 255},
+        {255, 175, 55, 255},
+        {255, 75, 170, 255},
+        {255, 245, 225, 255}
+    };
+
     if (maxSpeedSquared <= 0.0)
-        return WHITE;
-
-    float t = static_cast<float>(speedSquared / maxSpeedSquared);
-
-    t = std::clamp(t, 0.0f, 1.0f);
-
-    // Smoothstep
-    t = t * t * (3.0f - 2.0f * t);
-
-    // Blue -> Purple
-    if (t < 0.25f)
     {
-        float localT = t / 0.25f;
-
-        return ColorLerp(Color{40, 80, 255, 255}, Color{150, 30, 255, 255}, localT);
+        return palette[0];
     }
 
-    // Purple -> Red
-    if (t < 0.50f)
-    {
-        float localT = (t - 0.25f) / 0.25f;
-
-        return ColorLerp(Color{150, 30, 255, 255}, Color{255, 30, 30, 255}, localT);
-    }
-
-    // Red -> Orange
-    if (t < 0.75f)
-    {
-        float localT = (t - 0.50f) / 0.25f;
-
-        return ColorLerp(Color{255, 30, 30, 255}, Color{255, 150, 10, 255}, localT);
-    }
-
-    // Orange -> White
-    float localT = (t - 0.75f) / 0.25f;
-
-    return ColorLerp(Color{255, 150, 10, 255}, WHITE, localT);
+    double normalizedSpeedSquared = std::clamp(speedSquared / maxSpeedSquared, 0.0, 1.0);
+    float palettePosition = static_cast<float>(std::sqrt(normalizedSpeedSquared) * 6.0);
+    int paletteIndex = std::min(static_cast<int>(palettePosition), 5);
+    float localT = palettePosition - static_cast<float>(paletteIndex);
+    return ColorLerp(palette[paletteIndex], palette[paletteIndex + 1], localT);
 }

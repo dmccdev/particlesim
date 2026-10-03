@@ -27,6 +27,6 @@ public:
     void Galaxy();
     void Draw();
 private:
-    Color GetColorWhiteToRed(double speed, double maxSpeed);
-    Texture2D particleTexture;
+    Color GetParticleColor(double speedSquared, double maxSpeedSquared);
+    Texture2D particleTexture{};
 };
