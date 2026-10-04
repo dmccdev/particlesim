@@ -26,17 +26,16 @@ void Pairwise::InitialiseParticles()
     {
     case 1:
         particles.SingleStar();
-        Stats.calculateInitialStatistics(particles);
         break;
     case 2:
         particles.BinaryStar();
-        Stats.calculateInitialStatistics(particles);
         break;
     case 3:
         particles.Galaxy();
-        Stats.calculateInitialStatistics(particles);
         break;
     }
+
+    Stats.captureInitialState(particles);
 
     switch(integratorNumber) //Initialise Integrator
     {
@@ -51,9 +50,17 @@ void Pairwise::InitialiseParticles()
     }
 }
 
-void Pairwise::Update()
+void Pairwise::Update(bool statisticsEnabled)
 {
-    frameCounter++;
+    if (statisticsEnabled)
+    {
+        frameCounter++;
+    }
+    else
+    {
+        frameCounter = 0;
+    }
+
     switch(integratorNumber)
     {
     case 1: //Euler
@@ -111,7 +118,10 @@ void Pairwise::Update()
         particles.Draw();
         break;
     }
-    Stats.updateStatistics(particles ,frameCounter);
+    if (statisticsEnabled)
+    {
+        Stats.updateStatistics(particles, frameCounter);
+    }
 }
 
 

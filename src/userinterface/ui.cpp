@@ -1,6 +1,7 @@
 #include "ui.hpp"
 #include "button.hpp"
 #include <iostream>
+#include <cmath>
 
 UserInterface::UserInterface(Font font, double dt, double G) :
     BarnesHutButton(50, 100, 525, 150, "BARNESHUT", RED, true, false, false, false),
@@ -14,7 +15,10 @@ UserInterface::UserInterface(Font font, double dt, double G) :
     SingleStarButton(450, 540, 300, 150, "SINGLE STAR", RED, false, false, false, true),
     BinaryStarButton(825, 540, 300, 150, "BINARY STAR", RED, false, false, false, true),
 
-    StartButton(400, 750, 400, 100, "START", RED, false, false, true, false),
+    StatisticsButton(400, 725, 400, 75, "STATISTICS", RED, false, false, false, false),
+
+    StartButton(400, 825, 400, 75, "START", RED, false, false, true, false),
+
     simulationStart(false),
     font(font)
 {
@@ -32,7 +36,8 @@ void UserInterface::Draw()
     GalaxyButton.Draw();
     SingleStarButton.Draw();
     BinaryStarButton.Draw();
-    
+
+    StatisticsButton.Draw();
     StartButton.Draw();
 
     // Titles Text
@@ -40,7 +45,6 @@ void UserInterface::Draw()
     DrawText("ALGORITHM", 545, 70, 20, WHITE);
     DrawText("INTEGRATOR", 535, 285, 20, WHITE);
     DrawText("PARTICLE CONFIGURATION", 465, 500, 20, WHITE);
-
 }
 
 void UserInterface::UpdateButtons(Vector2 mousePosition)
@@ -56,6 +60,7 @@ void UserInterface::UpdateButtons(Vector2 mousePosition)
     ButtonPressed(mousePosition, SingleStarButton);
     ButtonPressed(mousePosition, BinaryStarButton);
 
+    ButtonPressed(mousePosition, StatisticsButton);
 
     ButtonPressed(mousePosition, StartButton);
 }
@@ -65,16 +70,21 @@ void UserInterface::ButtonPressed(Vector2 mousePosition, Button &button)
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
         CheckCollisionPointRec(mousePosition, button.ButtonBounds))
     {
-        if(button.startButton)
+        if (button.startButton)
         {
             SimulationBegin();
+            return;
+        }
+        else if (&button == &StatisticsButton)
+        {
+            ToggleStatistics();
             return;
         }
         else if (button.integrator)
         {
             SetActiveIntegrator(button);
         }
-        else if(button.algorithm)
+        else if (button.algorithm)
         {
             SetActiveAlgorithm(button);
         }
@@ -85,9 +95,24 @@ void UserInterface::ButtonPressed(Vector2 mousePosition, Button &button)
     }
 }
 
+void UserInterface::ToggleStatistics()
+{
+    //Flip boolean state of statistics button
+    StatisticsButton.buttonPressed = !StatisticsButton.buttonPressed;
+
+    if (StatisticsButton.buttonPressed)
+    {
+        StatisticsButton.buttonColour = GREEN;
+    }
+    else
+    {
+        StatisticsButton.buttonColour = RED;
+    }
+}
+
 void UserInterface::SetActiveAlgorithm(Button &button)
 {
-    //Turns them all of and then makes the one clicked on
+    // Turns them all off and then makes the one clicked on
     PairwiseButton.buttonPressed = false;
     PairwiseButton.buttonColour = RED;
 
@@ -100,7 +125,7 @@ void UserInterface::SetActiveAlgorithm(Button &button)
 
 void UserInterface::SetActiveIntegrator(Button &button)
 {
-    //Turns them all of and then makes the one clicked on
+    // Turns them all off and then makes the one clicked on
     EulerButton.buttonPressed = false;
     EulerButton.buttonColour = RED;
 
@@ -116,7 +141,7 @@ void UserInterface::SetActiveIntegrator(Button &button)
 
 void UserInterface::SetActiveParticleConfiguration(Button &button)
 {
-    //Turns them all of and then makes the one clicked on
+    // Turns them all off and then makes the one clicked on
     GalaxyButton.buttonPressed = false;
     GalaxyButton.buttonColour = RED;
 
@@ -132,16 +157,15 @@ void UserInterface::SetActiveParticleConfiguration(Button &button)
 
 void UserInterface::SimulationBegin()
 {
-    if(BarnesHutButton.buttonPressed || PairwiseButton.buttonPressed)
+    if (BarnesHutButton.buttonPressed || PairwiseButton.buttonPressed)
     {
-        if(RK4Button.buttonPressed || EulerButton.buttonPressed || VerletButton.buttonPressed)
+        if (RK4Button.buttonPressed || EulerButton.buttonPressed || VerletButton.buttonPressed)
         {
-            if(GalaxyButton.buttonPressed || SingleStarButton.buttonPressed || BinaryStarButton.buttonPressed)
+            if (GalaxyButton.buttonPressed || SingleStarButton.buttonPressed || BinaryStarButton.buttonPressed)
             {
                 std::cout << "Begin";
                 simulationStart = true;
             }
-
         }
     }
 }
@@ -154,27 +178,28 @@ void UserInterface::DrawStatistics(Statistics &Stats)
 
     DrawRectangle(panelX, 0, panelWidth, panelHeight, DARKGRAY);
 
-    DrawTextEx(font, "STATISTICS", { panelX + 20.0f, 25.0f }, 24.0f, 1.0f, WHITE);
+    // Title
+    DrawText("STATISTICS", panelX + 20, 25, 24, WHITE);
 
     // Energy
-    DrawTextEx(font, "ENERGY", { panelX + 20.0f, 90.0f }, 18.0f, 1.0f, WHITE);
+    DrawText("ENERGY", panelX + 20, 90, 18, WHITE);
     DrawLine(panelX + 20, 118, panelX + 280, 118, GRAY);
 
-    DrawTextEx(font, TextFormat("Kinetic:  %.4e", Stats.totalKineticEnergy), { panelX + 20.0f, 140.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Potential: %.4e", Stats.totalPotentialEnergy), { panelX + 20.0f, 168.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Total:     %.4e", Stats.totalEnergy), { panelX + 20.0f, 196.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Initial:   %.4e", Stats.initialTotalEnergy), { panelX + 20.0f, 224.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Error:     %.4f%%", Stats.energyError), { panelX + 20.0f, 252.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawText(TextFormat("Kinetic:  %.2f", Stats.totalKineticEnergy), panelX + 20, 140, 16, LIGHTGRAY);
+    DrawText(TextFormat("Potential: %.2f", Stats.totalPotentialEnergy), panelX + 20, 168, 16, LIGHTGRAY);
+    DrawText(TextFormat("Total:     %.2f", Stats.totalEnergy), panelX + 20, 196, 16, LIGHTGRAY);
+    DrawText(TextFormat("Initial:   %.2f", Stats.initialTotalEnergy), panelX + 20, 224, 16, LIGHTGRAY);
+    DrawText(TextFormat("Error:     %.4f%%", Stats.energyError), panelX + 20, 252, 16, LIGHTGRAY);
 
     // Momentum
-    DrawTextEx(font, "MOMENTUM", { panelX + 20.0f, 315.0f }, 18.0f, 1.0f, WHITE);
+    DrawText("MOMENTUM", panelX + 20, 315, 18, WHITE);
     DrawLine(panelX + 20, 343, panelX + 280, 343, GRAY);
 
-    DrawTextEx(font, TextFormat("Px:         %.4e", Stats.linearMomentumX), { panelX + 20.0f, 365.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Py:         %.4e", Stats.linearMomentumY), { panelX + 20.0f, 393.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Initial Px: %.4e", Stats.initialLinearMomentumX), { panelX + 20.0f, 421.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Initial Py: %.4e", Stats.initialLinearMomentumY), { panelX + 20.0f, 449.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Px Error:   %.4e", Stats.linearMomentumErrorX), { panelX + 20.0f, 477.0f }, 16.0f, 1.0f, LIGHTGRAY);
-    DrawTextEx(font, TextFormat("Py Error:   %.4e", Stats.linearMomentumErrorY), { panelX + 20.0f, 505.0f }, 16.0f, 1.0f, LIGHTGRAY);
+    DrawText(TextFormat("Px:         %.2f", Stats.linearMomentumX), panelX + 20, 365, 16, LIGHTGRAY);
+    DrawText(TextFormat("Py:         %.2f", Stats.linearMomentumY), panelX + 20, 393, 16, LIGHTGRAY);
+    DrawText(TextFormat("Initial Px: %.2f", Stats.initialLinearMomentumX), panelX + 20, 421, 16, LIGHTGRAY);
+    DrawText(TextFormat("Initial Py: %.2f", Stats.initialLinearMomentumY), panelX + 20, 449, 16, LIGHTGRAY);
+    DrawText(TextFormat("Px Error:   %.4f%%", Stats.linearMomentumErrorX), panelX + 20, 477, 16, LIGHTGRAY);
+    DrawText(TextFormat("Py Error:   %.4f%%", Stats.linearMomentumErrorY), panelX + 20, 505, 16, LIGHTGRAY);
 }
 

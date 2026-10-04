@@ -22,7 +22,7 @@ public:
     QuadTree quadtree;
     Statistics Stats;
     
-    void Update();
+    void Update(bool statisticsEnabled);
 
     void calculateAcceleration(int nodeIndex, int particleIndex, Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass);
 

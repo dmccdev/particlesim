@@ -13,7 +13,7 @@ int main()
     InitWindow(1200, 900, "particlesim2");
     SetTargetFPS(60);
     Font inter = LoadFontEx("src/inter.ttf", 30, NULL, 0);
-    double dt = 0.01;
+    double dt = 0.001;
 
     std::unique_ptr<Pairwise> algorithm_pairwise = nullptr;
     std::unique_ptr<BarnesHut> algorithm_barneshut = nullptr;
@@ -60,7 +60,7 @@ int main()
                     //Selecting Algorithm for Initialisation
                     if(userinterface.BarnesHutButton.buttonPressed)
                     {
-                        algorithm_barneshut = std::make_unique<BarnesHut>(15000, integratorSelectionValue, particleConfigSelectionValue, dt);
+                        algorithm_barneshut = std::make_unique<BarnesHut>(12000, integratorSelectionValue, particleConfigSelectionValue, dt);
                         algorithm_barneshut->InitialiseParticles();
                         
 
@@ -75,13 +75,19 @@ int main()
 
                 if(algorithm_barneshut)
                 {
-                    algorithm_barneshut->Update();
-                    userinterface.DrawStatistics(algorithm_barneshut->Stats);
+                    algorithm_barneshut->Update(userinterface.StatisticsButton.buttonPressed);
+                    if(userinterface.StatisticsButton.buttonPressed)
+                    {
+                        userinterface.DrawStatistics(algorithm_barneshut->Stats);
+                    }
                 }
                 else if(algorithm_pairwise)
                 {
-                    algorithm_pairwise->Update();
-                    userinterface.DrawStatistics(algorithm_pairwise->Stats);
+                    algorithm_pairwise->Update(userinterface.StatisticsButton.buttonPressed);
+                    if(userinterface.StatisticsButton.buttonPressed)
+                    {
+                        userinterface.DrawStatistics(algorithm_pairwise->Stats);
+                    }
                 }
                 
             }

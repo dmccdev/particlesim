@@ -21,7 +21,7 @@ public:
     ParticlesState particles;
     Pairwise(int particlesCount, int integratorNumber, int particleConfigNumber, double dt);
     void InitialiseParticles();
-    void Update();
+    void Update(bool statisticsEnabled);
 
     void CalculateAccelerations(Vec &positionX, Vec &positionY, Vec &accelerationX, Vec &accelerationY, Vec &mass);
     std::array<double, 2> CalculateAcceleration(double displacementX, double displacementY);

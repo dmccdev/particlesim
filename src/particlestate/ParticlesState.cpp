@@ -70,15 +70,15 @@ void ParticlesState::SingleStar()
     std::random_device rd;
     std::mt19937 generator64(rd());
 
-    std::uniform_real_distribution<double> distributionRadius(100, 200);
-    std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
-    std::uniform_real_distribution<double> distributionPerturbation(-30, 30);
+    std::uniform_real_distribution<double> distributionRadius(150.0, 300.0);
+    std::uniform_real_distribution<double> distributionTheta(0.0, 2.0 * pi);
+    std::uniform_real_distribution<double> distributionPerturbation(-5.0, 5.0);
 
 
     //Initialise Center Mass
     X[0] = 450.0;
     Y[0] = 450.0;
-    mass[0] = 100000.0;
+    mass[0] = 10000000.0;
     velocityX[0] = 0.0;
     velocityY[0] = 0.0;
 
@@ -115,9 +115,9 @@ void ParticlesState::BinaryStar()
     std::random_device rd;
     std::mt19937 generator64(rd());
 
-    std::uniform_real_distribution<double> distributionRadius(150, 300);
-    std::uniform_real_distribution<double> distributionTheta(0, 2 * pi);
-    std::uniform_real_distribution<double> distributionPerturbation(-30, 30);
+    std::uniform_real_distribution<double> distributionRadius(150.0, 300.0);
+    std::uniform_real_distribution<double> distributionTheta(0.0, 2.0 * pi);
+    std::uniform_real_distribution<double> distributionPerturbation(-30.0, 30.0);
 
 
     //Initialise Central Masses
@@ -190,7 +190,9 @@ void ParticlesState::Galaxy()
     velocityY[0] = 0.0;
 
     //2D Random Polar Co ordiantes
-    std::uniform_real_distribution<double> distributionRadius(35.0, 320.0); 
+    // std::uniform_real_distribution<double> distributionRadius(35.0, 320.0); 
+    std::uniform_real_distribution<double> distributionRadius(150.0, 300.0); 
+
     std::uniform_real_distribution<double> distributionTheta(0.0, 2.0 * pi);
     std::normal_distribution<double> diskThickness(0.0, 12.0);
     std::uniform_real_distribution<double> velocityVariation(0.95, 1.05);

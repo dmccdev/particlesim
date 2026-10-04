@@ -17,6 +17,7 @@ public:
     Button GalaxyButton;
     Button SingleStarButton;
     Button BinaryStarButton;
+    Button StatisticsButton;
 
     bool simulationStart;
 
@@ -25,6 +26,8 @@ public:
     void Draw();
     void UpdateButtons(Vector2 mousePosition);
     void ButtonPressed(Vector2 mousePosition, Button &button);
+
+    void ToggleStatistics();
 
     void SetActiveParticleConfiguration(Button &button);
     void SetActiveIntegrator(Button &button);
