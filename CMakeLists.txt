@@ -29,8 +29,8 @@ add_executable(particlesim
     src/main.cpp
 
     #Font File
-    src/calibri.ttf
-    src/inter.ttf
+    src/assets/calibri.ttf
+    src/assets/inter.ttf
 
     # User interface
     src/userinterface/ui.hpp
@@ -81,7 +81,7 @@ target_include_directories(particlesim PRIVATE
 # --------------------------------------------------
 
 file(
-    COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/inter.ttf"
+    COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/inter.ttf"
     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/src"
 )
 

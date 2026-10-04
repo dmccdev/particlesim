@@ -196,9 +196,10 @@ particlesim/
 │
 ├── src/
 │   ├── main.cpp
-│   ├── calibri.ttf
 │   │
 │   ├── assets/
+│   │   ├── calibri.ttf
+│   │   ├── inter.ttf
 │   │   ├── Galaxy.png
 │   │   ├── BinaryStarSystem.png
 │   │   ├── StarSystem.png
@@ -209,6 +210,10 @@ particlesim/
 │   │   ├── ui.cpp
 │   │   ├── button.hpp
 │   │   └── button.cpp
+│   │
+│   ├── statistics/
+│   │   ├── statistics.hpp
+│   │   └── statistics.cpp
 │   │
 │   ├── particlestate/
 │   │   ├── ParticlesState.hpp
