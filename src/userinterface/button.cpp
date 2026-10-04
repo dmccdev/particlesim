@@ -15,6 +15,7 @@ Button::Button(float x, float y, float width, float height, std::string text, Co
 void Button::Draw()
 {
     DrawRectangleRec(ButtonBounds, buttonColour);
+    DrawRectangleLinesEx(ButtonBounds, 3.0f, DARKGRAY);
 
     Vector2 textDimensions = MeasureTextEx(GetFontDefault(), text.c_str(), 30, 1.0f);
 

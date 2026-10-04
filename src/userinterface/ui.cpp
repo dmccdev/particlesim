@@ -3,18 +3,18 @@
 #include <iostream>
 
 UserInterface::UserInterface(Font font, double dt, double G) :
-    BarnesHutButton(50, 100, 375, 150, "BARNESHUT", RED, true, false, false, false),
-    PairwiseButton(475, 100, 375, 150, "PAIRWISE", RED, true, false, false, false),
+    BarnesHutButton(50, 100, 525, 150, "BARNESHUT", RED, true, false, false, false),
+    PairwiseButton(625, 100, 525, 150, "PAIRWISE", RED, true, false, false, false),
 
-    EulerButton(75, 325, 200, 150, "EULER", RED, false, true, false, false),
-    VerletButton(350, 325, 200, 150, "VERLET", RED, false, true, false, false),
-    RK4Button(625, 325, 200, 150, "RK4", RED, false, true, false, false),
+    EulerButton(75, 325, 300, 150, "EULER", RED, false, true, false, false),
+    VerletButton(450, 325, 300, 150, "VERLET", RED, false, true, false, false),
+    RK4Button(825, 325, 300, 150, "RK4", RED, false, true, false, false),
 
-    GalaxyButton(75, 540, 200, 150, "GALAXY", RED, false, false, false, true),
-    SingleStarButton(350, 540, 200, 150, "SINGLE STAR", RED, false, false, false, true),
-    BinaryStarButton(625, 540, 200, 150, "BINARY STAR", RED, false, false, false, true),
+    GalaxyButton(75, 540, 300, 150, "GALAXY", RED, false, false, false, true),
+    SingleStarButton(450, 540, 300, 150, "SINGLE STAR", RED, false, false, false, true),
+    BinaryStarButton(825, 540, 300, 150, "BINARY STAR", RED, false, false, false, true),
 
-    StartButton(250, 750, 400, 100, "START", RED, false, false, true, false),
+    StartButton(400, 750, 400, 100, "START", RED, false, false, true, false),
     simulationStart(false),
     font(font)
 {
@@ -35,11 +35,11 @@ void UserInterface::Draw()
     
     StartButton.Draw();
 
-    //Titles Text
-    DrawText("N BODY PARTICLE SIMULATION", 204, 25, 30, WHITE);
-    DrawText("ALGORITHM", 395, 70, 20, WHITE);
-    DrawText("INTEGRATOR", 385, 285, 20, WHITE);
-    DrawText("PARTICLE CONFIGURATION", 315, 500, 20, WHITE);
+    // Titles Text
+    DrawText("N BODY PARTICLE SIMULATION", 354, 25, 30, WHITE);
+    DrawText("ALGORITHM", 545, 70, 20, WHITE);
+    DrawText("INTEGRATOR", 535, 285, 20, WHITE);
+    DrawText("PARTICLE CONFIGURATION", 465, 500, 20, WHITE);
 
 }
 
