@@ -1,11 +1,11 @@
-# N-Body Particle Simulation
+# N Body Particle Simulation
 
 <p align="center">
   <img src="src/assets/Galaxy.gif" width="700">
 </p>
 
 <p align="center">
-  Real-time 2D gravitational N-body simulation written in C++ with Raylib.
+  Real time 2D gravitational N body simulation written in C++ with Raylib.
 </p>
 
 <p align="center">
@@ -19,29 +19,26 @@
 
 ## Overview
 
-A real-time 2D N-body simulation that models gravitational interactions between particles.
+The simulation implements two different approaches to calculating gravitational forces, three numerical integration methods and several initial particle configurations, with plans to add more in the future.
 
-The simulation implements two different approaches to calculating gravitational forces, three numerical integration methods and several initial particle configurations. This makes it possible to compare the computational cost and behaviour of different algorithms within the same simulation.
+This makes it possible to compare the computational cost (performance wise) and behaviour of different algorithms within the same simulation.
 
-The application also includes an interactive interface for switching between algorithms, integrators and particle configurations.
-
+The application also includes an interactive interface for switching between algorithms, integrators and particle configurations allowing combinations of different settings.
 
 
 ---
 
 ## Features
 
-- Real-time 2D gravitational N-body simulation
-- Direct pairwise force calculation
-- Barnes-Hut algorithm using a quadtree
+- Pairwise force calculation
+- Barnes Hut algorithm using a quadtree data structure
 - Euler, Verlet and RK4 integration
-- Optional OpenMP parallelisation
-- Multiple particle configurations
-- Real-time particle visualisation
-- Velocity-based particle colouring
-- Additive particle rendering
-- Interactive user interface
-- CMake-based build system
+- OpenMP parallelisation for improved performance
+- Multiple particle configurations (Galaxy, Single Star System and Binary Star System)
+- Particle visualisation using Raylib
+- Particle colouring depending on particle velocities
+- User Interface with ability to enable and disable statistics
+- CMake builds project into an exe file
 
 ---
 
@@ -49,7 +46,7 @@ The application also includes an interactive interface for switching between alg
 
 ## Galaxy
 
-A central massive body is surrounded by particles with initial tangential velocities, producing an orbiting galaxy-like structure.
+A central massive body is surrounded by particles with tangential velocities, producing an orbiting galaxy with spiral arms.
 
 <p align="center">
   <img src="src/assets/Galaxy.png" width="650" alt="Galaxy particle configuration">
@@ -59,7 +56,7 @@ A central massive body is surrounded by particles with initial tangential veloci
 
 ## Binary Star System
 
-Two massive bodies orbit their common centre of mass while surrounding particles respond to their combined gravitational field.
+Two high mass bodies orbit their centre of mass while surrounding smaller mass particles respond to their combined gravitational field.
 
 <p align="center">
   <img src="src/assets/BinaryStarSystem.png" width="650" alt="Binary star system particle configuration">
@@ -71,7 +68,7 @@ Two massive bodies orbit their common centre of mass while surrounding particles
 
 A massive central body is surrounded by particles with tangential orbital velocities.
 
-Particles closer to the centre have higher initial orbital velocities, producing a dense rotating particle system.
+Particles closer to the centre have higher initial orbital velocities, producing a star with a band of particles surrounding the central mass.
 
 <p align="center">
   <img src="src/assets/StarSystem.png" width="650" alt="Single star system particle configuration">
@@ -84,81 +81,75 @@ Particles closer to the centre have higher initial orbital velocities, producing
 ## Pairwise N-Body
 
 The direct approach calculates the gravitational interaction between particles individually.
-
-For `N` particles, this gives an approximate computational complexity of `O(N²)`.
-
-This means that increasing the number of particles causes the number of force calculations to grow rapidly.
-
-The pairwise implementation provides a direct solution and a baseline for comparing the Barnes-Hut implementation.
+For N particles, this gives an approximate computational time complexity of O(N²).
+This means that increasing the number of particles causes the number of force calculations to grow proportional to N²
+The pairwise algorithm allows for comparing the Barnes-Hut implementation on total particles and performance metrics.
 
 ---
 
 ## Barnes-Hut
 
-The Barnes-Hut implementation uses a quadtree to divide the simulation space into regions.
+The Barnes-Hut implementation uses a quadtree to divide the 2D simulation space into equal square regions.
 
 Rather than calculating the gravitational influence of every individual distant particle, groups of particles can be approximated using their combined mass and centre of mass.
 
-This reduces the approximate computational complexity from `O(N²)` to `O(N log N)`.
+This approximation's tolerance can be adjusted by changing the theta value.
 
-The reduction becomes increasingly significant as the number of particles increases.
+This reduces the algorithm time complexity from O(N²) to O(N log N) which is signinficantly better for high numbers of particles.
 
 ---
 
 # Numerical Integration
 
-The simulation supports three numerical integration methods. Each method has a different computational cost and level of numerical accuracy.
+The simulation currently uses three numerical integration methods: Euler, Verlet and RK4. They differ in accuracy and computational cost as follows
 
-| Integrator | Force evaluations | Order | Computational cost |
-|---|---:|---:|---|
-| Euler | 1 | 1st | Low |
-| Verlet | ~1 | 2nd | Low |
-| RK4 | 4 | 4th | High |
+- **Euler:** First order method with one force evaluation per step. Low computational cost but lower numerical accuracy. Works well as a baseline for comparing the integration methods
+- **Verlet:** Second order method with approximately one force evaluation per step excluding the start. Provides improved stability and accuracy with similar low calculation cost to Euler.
+- **RK4:** Fourth order method requiring four force evaluations per step. Higher computational cost but greater numerical accuracy compared to Euler and Verlet.
+
 
 ## Euler
 
-Euler is the simplest integration method used by the simulation.
+Euler is the simplest integration method used by the simulation. 
 
 Each timestep requires a single acceleration calculation before updating particle velocity and position.
 
-This gives Euler a low computational cost, but it is only first-order accurate and can accumulate significant numerical error over longer simulations.
+This gives Euler a low computational cost, but it is only first order accurate and can gain error over longer simulations in a short time span especially for close particle interactions of high mass.
 
 ## Verlet
 
-Verlet provides improved numerical behaviour while maintaining relatively low computational overhead.
+Verlet provides improved numerical behaviour while maintaining a similar cost to Euler.
 
 The implementation uses particle positions from the current and previous timesteps to determine the next position.
 
-Compared with RK4, Verlet requires substantially less computation per timestep while providing better long-term behaviour than basic Euler integration for many physical simulations.
+Compared with RK4, Verlet requires approximately 3 less calculations per particle per timestep while providing better long term behaviour than Euler integration.
 
-## RK4
+## Runge-Kutta 4 (RK4)
 
-Runge-Kutta 4th order integration evaluates the system four times during each timestep.
+RK4 4th order integration evaluates the system four times during each timestep requiring virtual stores of the particle states.
 
-For an N-body simulation, this means the gravitational acceleration must be calculated approximately four times for each integration step.
+For an N body simulation, this means the gravitational acceleration must be calculated approximately four times for each integration step for every particle.
 
-This makes RK4 considerably more computationally expensive than Euler or Verlet.
-
-The additional computation provides fourth-order accuracy, allowing RK4 to achieve high numerical accuracy for a given timestep.
+The additional computation has fourth order accuracy, which  allows RK4 to achieve high numerical accuracy for a similar timestep to Euler and Verlet.
 
 ## Computational Trade-off
 
 The choice of integrator affects both the numerical behaviour and computational cost of the simulation.
 
-For example, when using the pairwise algorithm, a single Euler timestep requires approximately one set of `O(N²)` force calculations, while RK4 requires approximately four sets of `O(N²)` force calculations.
+For example, when using the pairwise algorithm, a single Euler timestep requires approximately one set of O(N²) force calculations, while RK4 requires approximately four sets of O(N²) force calculations.
 
 Combining this with Barnes-Hut gives another trade-off:
 
-- Pairwise + Euler: `O(N²)` with 1 force evaluation
-- Pairwise + RK4: `O(N²)` with 4 force evaluations
-- Barnes-Hut + Euler: `O(N log N)` with 1 force evaluation
-- Barnes-Hut + RK4: `O(N log N)` with 4 force evaluations
+- Pairwise + Euler: O(N²) with 1 force evaluation
+- Pairwise + RK4: O(N²) with 4 force evaluations
+- Barnes-Hut + Euler: O(N log N) with 1 force evaluation
+- Barnes-Hut + RK4: O(N log N) with 4 force evaluations
 
 This allows the simulation to demonstrate how both the choice of force algorithm and numerical integrator affect computational workload.
 
 ---
 
-# Parallelisation
+# Parallel Computation
 
 OpenMP is used to parallelise suitable particle calculations.
 
@@ -166,15 +157,17 @@ Where OpenMP is available, independent particle calculations can be distributed 
 
 OpenMP is optional, so the simulation can still be built and run without it.
 
+Also the project uses Eigen (A third party linear algebra module) which allows for particle calculations with vectors.
+
 ---
 
 # Rendering
 
-Raylib is used for real-time rendering.
+Raylib is used for rendering the particles, drawing the user interface and displaying statistics.
 
-Particles are rendered using low-level quad rendering with additive blending to create a dense particle-field effect.
+Particles are rendered using low level quad rendering with additive blending to create a dense particle effect.
 
-Particle colour is determined from simulation data such as velocity, allowing differences in particle speed to be visualised directly.
+Particle colour is determined from velocity, allowing differences in particle speed to be visualised directly.
 
 ---
 
@@ -263,10 +256,8 @@ Eigen is included in the project's `third_party` directory.
 
 ## Clone
 
-    git clone https://github.com/YOUR_USERNAME/particlesim.git
+    git clone https://github.com/dmccdev/particlesim.git
     cd particlesim
-
-Replace `YOUR_USERNAME` with your GitHub username.
 
 ## Configure
 
@@ -286,7 +277,7 @@ For a Debug build:
 
     build\Debug\particlesim.exe
 
-For a Release build:
+For a Release build: (Recomended)
 
     build\Release\particlesim.exe
 
@@ -314,7 +305,7 @@ CMake will download Raylib as part of the configuration process.
 
 Performance is affected by both the gravitational force algorithm and the numerical integrator.
 
-The direct pairwise approach has approximately `O(N²)` complexity, while Barnes-Hut reduces the approximate complexity to `O(N log N)` by grouping distant particles.
+The direct pairwise approach has approximately O(N²) complexity, while Barnes Hut reduces the approximate complexity to O(N log N) by grouping distant particles.
 
 The integrator also affects the amount of work performed per timestep:
 
@@ -322,9 +313,9 @@ The integrator also affects the amount of work performed per timestep:
 - Verlet has relatively low computational overhead.
 - RK4 requires four force evaluations.
 
-OpenMP can further reduce computation time by distributing independent particle calculations across CPU threads.
+OpenMP can further reduce computation time by distributing independent particle calculations using threading.
 
-The project therefore provides several combinations of algorithms that can be compared under the same simulation conditions.
+The project therefore provides several combinations of algorithms that can be compared under the matching simulation conditions.
 
 ---
 
@@ -353,26 +344,12 @@ The simulation can then be started using the start control.
 
 ---
 
-# Physics
-
-The simulation uses Newtonian gravitational mechanics to calculate particle acceleration.
-
-Initial positions, masses and velocities are configured differently for each particle configuration.
-
-For the galaxy and single-star systems, particles are assigned tangential velocities based on their distance from the central mass.
-
-The binary system uses two massive bodies with opposing velocities so that they orbit their common centre of mass.
-
----
-
-# Future Improvements
+# Potential Future Improvements
 
 - GPU-based force calculations
-- CUDA/OpenCL acceleration
+- CUDA/OpenCL
 - Particle trails
 - Elastic collisions
 - Runtime simulation parameters
-- Performance statistics
-- Larger particle counts
-- Additional spatial partitioning techniques
-- More advanced gravitational visualisation
+- Greater number of particles
+- More algorithms, integrators and particle configurations
