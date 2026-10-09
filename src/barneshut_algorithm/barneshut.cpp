@@ -29,7 +29,7 @@ void BarnesHut::InitialiseParticles()
         break;
     }
 
-    Stats.captureInitialState(particles);
+    Stats.getInitialParticleState(particles);
 
     switch(integratorNumber) //Initialise Integrator
     {

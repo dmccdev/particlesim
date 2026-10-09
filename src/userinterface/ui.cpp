@@ -180,30 +180,31 @@ void UserInterface::DrawStatistics(Statistics &Stats)
     int panelWidth = 300;
     int panelHeight = 900;
 
-    DrawRectangle(panelX, 0, panelWidth, panelHeight, DARKGRAY);
+    Color backgroundColour = { 45, 45, 48, 255 }; 
+    Color lineColour = { 100, 100, 105, 255 };
+    Color textColour = { 210, 210, 215, 255 };
 
-    // Title
+    DrawRectangle(panelX, 0, panelWidth, panelHeight, backgroundColour);
+
+    //Title
     DrawText("STATISTICS", panelX + 20, 25, 24, WHITE);
 
-    // Energy
+    //Potential and kinetic energy
     DrawText("ENERGY", panelX + 20, 90, 18, WHITE);
-    DrawLine(panelX + 20, 118, panelX + 280, 118, GRAY);
+    DrawLine(panelX + 20, 118, panelX + 280, 118, lineColour);
+    DrawText(TextFormat("Kinetic:  %.2e", Stats.totalKineticEnergy), panelX + 20, 140, 16, textColour);
+    DrawText(TextFormat("Potential: %.2e", Stats.totalPotentialEnergy), panelX + 20, 168, 16, textColour);
+    DrawText(TextFormat("Total:     %.2e", Stats.totalEnergy), panelX + 20, 196, 16, textColour);
+    DrawText(TextFormat("Initial:   %.2e", Stats.initialTotalEnergy), panelX + 20, 224, 16, textColour);
+    DrawText(TextFormat("Error:     %.2e%%", Stats.energyError), panelX + 20, 252, 16, textColour);
 
-    DrawText(TextFormat("Kinetic:  %.2f", Stats.totalKineticEnergy), panelX + 20, 140, 16, LIGHTGRAY);
-    DrawText(TextFormat("Potential: %.2f", Stats.totalPotentialEnergy), panelX + 20, 168, 16, LIGHTGRAY);
-    DrawText(TextFormat("Total:     %.2f", Stats.totalEnergy), panelX + 20, 196, 16, LIGHTGRAY);
-    DrawText(TextFormat("Initial:   %.2f", Stats.initialTotalEnergy), panelX + 20, 224, 16, LIGHTGRAY);
-    DrawText(TextFormat("Error:     %.4f%%", Stats.energyError), panelX + 20, 252, 16, LIGHTGRAY);
-
-    // Momentum
+    //Momentum 
     DrawText("MOMENTUM", panelX + 20, 315, 18, WHITE);
-    DrawLine(panelX + 20, 343, panelX + 280, 343, GRAY);
-
-    DrawText(TextFormat("Px:         %.2f", Stats.linearMomentumX), panelX + 20, 365, 16, LIGHTGRAY);
-    DrawText(TextFormat("Py:         %.2f", Stats.linearMomentumY), panelX + 20, 393, 16, LIGHTGRAY);
-    DrawText(TextFormat("Initial Px: %.2f", Stats.initialLinearMomentumX), panelX + 20, 421, 16, LIGHTGRAY);
-    DrawText(TextFormat("Initial Py: %.2f", Stats.initialLinearMomentumY), panelX + 20, 449, 16, LIGHTGRAY);
-    DrawText(TextFormat("Px Error:   %.4f%%", Stats.linearMomentumErrorX), panelX + 20, 477, 16, LIGHTGRAY);
-    DrawText(TextFormat("Py Error:   %.4f%%", Stats.linearMomentumErrorY), panelX + 20, 505, 16, LIGHTGRAY);
+    DrawLine(panelX + 20, 343, panelX + 280, 343, lineColour);
+    DrawText(TextFormat("Momentum x:         %.2e", Stats.linearMomentumX), panelX + 20, 365, 16, textColour);
+    DrawText(TextFormat("Momentum y:         %.2e", Stats.linearMomentumY), panelX + 20, 393, 16, textColour);
+    DrawText(TextFormat("Initial Momentum x: %.2e", Stats.initialLinearMomentumX), panelX + 20, 421, 16, textColour);
+    DrawText(TextFormat("Initial Momentum y: %.2e", Stats.initialLinearMomentumY), panelX + 20, 449, 16, textColour);
+    DrawText(TextFormat("Momentum x Error:   %.2e%%", Stats.linearMomentumErrorX), panelX + 20, 477, 16, textColour);
+    DrawText(TextFormat("Momentum y Error:   %.2e%%", Stats.linearMomentumErrorY), panelX + 20, 505, 16, textColour);
 }
-

@@ -16,13 +16,13 @@ void Statistics::calculateStatistics(ParticlesState &particles)
     //Reset Statistics
     linearMomentumX = 0.0;
     linearMomentumY = 0.0;
-    // angularMomentum = 0.0;
     totalEnergy = 0.0;
     totalKineticEnergy = 0.0;
     totalPotentialEnergy = 0.0;
     energyError = 0;
 
-    //Calculate Linear Momentum, Angular Momentum & Total Kinetic Energy
+    //Calculate Linear Momentum & Total Kinetic Energy
+
     #ifdef USE_OPENMP
     #pragma omp parallel for reduction(+:linearMomentumX,linearMomentumY,angularMomentum,totalKineticEnergy)
     #endif
@@ -47,7 +47,7 @@ void Statistics::calculateStatistics(ParticlesState &particles)
             double displacementY = particles.Y[j] - particles.Y[i];
 
             double distanceSquared = displacementX*displacementX + displacementY*displacementY;
-            if(distanceSquared > 0)
+            if(distanceSquared > 0.0)
             {
                 totalPotentialEnergy -= G * particles.mass[i] * particles.mass[j] / std::sqrt(distanceSquared + epsilonSquared);
             }
@@ -78,7 +78,7 @@ void Statistics::updateStatistics(ParticlesState &particles, int &frameCounter)
     }
 }
 
-void Statistics::captureInitialState(ParticlesState &particles)
+void Statistics::getInitialParticleState(ParticlesState &particles)
 {
     initialPositionX = particles.X;
     initialPositionY = particles.Y;
@@ -100,32 +100,28 @@ void Statistics::calculateInitialStatistics()
 
     energyError = 0.0;
     linearMomentumErrorX = 0.0;
-    linearMomentumErrorY = 0.0;
-    // angularMomentumError = 0.0;
-    
+    linearMomentumErrorY = 0.0;   
 
-    int particlesCount = initialMass.size();
+    int numberOfParticles = initialMass.size();
 
-    //Calculating Inital Linear Momentum, Initial Angular Energy & Initial Total Kinetic Energy
+    //Calculating Inital Linear Momentum and Initial Total Kinetic Energy
     #ifdef USE_OPENMP
     #pragma omp parallel for reduction(+:initialLinearMomentumX,initialLinearMomentumY,initialAngularMomentum,initialTotalKineticEnergy)
     #endif
 
-    for(int i = 0; i < particlesCount; i++)
+    for(int i = 0; i < numberOfParticles; i++)
     {
         initialLinearMomentumX += initialMass[i] * initialVelocityX[i];
         initialLinearMomentumY += initialMass[i] * initialVelocityY[i];
-
-        initialAngularMomentum += initialMass[i] * (initialPositionX[i] * initialVelocityY[i] - initialPositionY[i] * initialVelocityX[i]);
 
         initialTotalKineticEnergy += 0.5 * initialMass[i] * (initialVelocityX[i] * initialVelocityX[i] + initialVelocityY[i] * initialVelocityY[i]);
     }
 
 
     //Calculating Initial Potential Energy
-    for(int i = 0;  i < particlesCount; i++)
+    for(int i = 0;  i < numberOfParticles; i++)
     {
-        for(int j = i + 1; j < particlesCount; j++)
+        for(int j = i + 1; j < numberOfParticles; j++)
         {   
             double displacementX = initialPositionX[j] - initialPositionX[i];
             double displacementY = initialPositionY[j] - initialPositionY[i];
@@ -134,6 +130,10 @@ void Statistics::calculateInitialStatistics()
             if(distanceSquared > 0)
             {
                 initialTotalPotentialEnergy -= G * initialMass[i] * initialMass[j] / std::sqrt(distanceSquared + epsilonSquared); 
+            }
+            else
+            {
+                std::cout << "zero";
             }
         }
     }

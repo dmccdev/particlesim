@@ -15,9 +15,6 @@ RK4Integrator(particlesCount),
 dt(dt),
 Stats(dt, 1.0, 300, epsilon)
 {
-std::cout << "Pairwise G: " << G << std::endl;
-std::cout << "Stats G: " << Stats.G << std::endl;
-
 }
 
 void Pairwise::InitialiseParticles()
@@ -35,7 +32,7 @@ void Pairwise::InitialiseParticles()
         break;
     }
 
-    Stats.captureInitialState(particles);
+    Stats.getInitialParticleState(particles);
 
     switch(integratorNumber) //Initialise Integrator
     {

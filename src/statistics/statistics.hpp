@@ -44,7 +44,7 @@ Statistics(double dt, double G, double frameCalculationInterval, double epsilon)
 
 void calculateStatistics(ParticlesState &particles);
 void updateStatistics(ParticlesState &particles, int &frameCounter);
-void captureInitialState(ParticlesState &particles);
+void getInitialParticleState(ParticlesState &particles);
 
 private:
 Vec initialPositionX;
