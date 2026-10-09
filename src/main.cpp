@@ -13,7 +13,7 @@ int main()
     InitWindow(1200, 900, "particlesim2");
     SetTargetFPS(60);
     Font inter = LoadFontEx("src/inter.ttf", 30, NULL, 0);
-    double dt = 0.001;
+    double dt = 0.01;
 
     std::unique_ptr<Pairwise> algorithm_pairwise = nullptr;
     std::unique_ptr<BarnesHut> algorithm_barneshut = nullptr;

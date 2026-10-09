@@ -77,7 +77,10 @@ void UserInterface::ButtonPressed(Vector2 mousePosition, Button &button)
         }
         else if (&button == &StatisticsButton)
         {
-            ToggleStatistics();
+            if(simulationStart == false)
+            {
+                ToggleStatistics();
+            }
             return;
         }
         else if (button.integrator)
@@ -98,6 +101,7 @@ void UserInterface::ButtonPressed(Vector2 mousePosition, Button &button)
 void UserInterface::ToggleStatistics()
 {
     //Flip boolean state of statistics button
+    
     StatisticsButton.buttonPressed = !StatisticsButton.buttonPressed;
 
     if (StatisticsButton.buttonPressed)
